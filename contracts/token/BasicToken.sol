@@ -2,6 +2,7 @@ pragma solidity ^0.4.11;
 
 
 import './ERC20Basic.sol';
+import './ERC223ReceivingContract.sol';
 import '../math/SafeMath.sol';
 
 
@@ -20,6 +21,23 @@ contract BasicToken is ERC20Basic {
   * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint256 _value) public returns (bool) {
+
+  }
+
+  function _checkDestination(address _from, address _to, uint256 _value, bytes _data) internal {
+  // erc223: Retrieve the size of the code on target address, this needs assembly .
+  uint256 codeLength;
+  assembly {
+    codeLength := extcodesize(_to)
+  }
+    if(codeLength>0) {
+      ERC223ReceivingContract untrustedReceiver = ERC223ReceivingContract(_to);
+      // untrusted contract call
+      untrustedReceiver.tokenFallback(_from, _value, _data);
+    }
+  }
+
+  function transfer(address _to, uint256 _value, bytes _data) public returns (bool) {
     require(_to != address(0));
     require(_value <= balances[msg.sender]);
 
@@ -27,9 +45,9 @@ contract BasicToken is ERC20Basic {
     balances[msg.sender] = balances[msg.sender].sub(_value);
     balances[_to] = balances[_to].add(_value);
     Transfer(msg.sender, _to, _value);
+    _checkDestination(msg.sender, _to, _value, _data);
     return true;
   }
-
   /**
   * @dev Gets the balance of the specified address.
   * @param _owner The address to query the the balance of.
