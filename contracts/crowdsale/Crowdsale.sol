@@ -14,6 +14,11 @@ import '../math/SafeMath.sol';
 contract Crowdsale {
   using SafeMath for uint256;
 
+  struct Rate {
+    uint256 end;
+    uint256 swapRate;
+  }
+
   // The token being sold
   MintableToken public token;
 
@@ -25,10 +30,8 @@ contract Crowdsale {
   address public wallet;
 
   // how many token units a buyer gets per wei
-  uint256 public rate;
+  mapping(uint => Rate) internal rate;
 
-  // amount of raised money in wei
-  uint256 public weiRaised;
 
   /**
    * event for token purchase logging
@@ -40,25 +43,33 @@ contract Crowdsale {
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet) {
-    require(_startTime >= now);
-    require(_endTime >= _startTime);
-    require(_rate > 0);
+  function Crowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet) public {
     require(_wallet != address(0));
+    require(_ends.length == _swapRate.length);
+    require(_ends[0] > _startTime);
 
-    token = createTokenContract();
-    startTime = _startTime;
-    endTime = _endTime;
-    rate = _rate;
+    token = SimpleToken(_tokenAddr);
     wallet = _wallet;
+    startTime = _startTime;
+    endTime = _ends[_ends.length - 1];
+
+    for(uint8 i = 0; i < _startTime.length; i++) {
+      require(_swapRate[i] > 0);
+      if (i != 0) require(_ends[i] > _ends[i-1]);
+      rate[i].end = _ends[i];
+      rate[i].swapRate = _swapRate[i];
+    }
   }
 
-  // creates the token to be sold.
-  // override this method to have crowdsale of a specific mintable token.
-  function createTokenContract() internal returns (MintableToken) {
-    return new MintableToken();
-  }
+  function currentRate() public constant returns (uint256) {
+    if(now > endTime) return  0;
 
+    for(uint8 i = 0; i < rate.length; i++) {
+      if(now < rate[i].startTime) {
+        return rate[i - 1].swapRate;
+      }
+    }
+  }
 
   // fallback function can be used to buy tokens
   function () payable {
@@ -73,7 +84,8 @@ contract Crowdsale {
     uint256 weiAmount = msg.value;
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    uint256 tokens = weiAmount.mul(currentRate());
+    require(tokens != 0);
 
     // update state
     weiRaised = weiRaised.add(weiAmount);
@@ -91,7 +103,7 @@ contract Crowdsale {
   }
 
   // @return true if the transaction can buy tokens
-  function validPurchase() internal constant returns (bool) {
+  function validPurchase(uint256 tokens) internal constant returns (bool) {
     bool withinPeriod = now >= startTime && now <= endTime;
     bool nonZeroPurchase = msg.value != 0;
     return withinPeriod && nonZeroPurchase;
@@ -101,6 +113,5 @@ contract Crowdsale {
   function hasEnded() public constant returns (bool) {
     return now > endTime;
   }
-
 
 }
