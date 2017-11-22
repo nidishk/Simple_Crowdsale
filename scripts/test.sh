@@ -13,14 +13,17 @@ cleanup() {
 }
 
 testrpc_running() {
-  nc -z localhost 8545
+  nc -z localhost 9000
 }
 
 if testrpc_running; then
   echo "Using existing testrpc instance"
 else
   echo "Starting our own testrpc instance"
-  testrpc > /dev/null &
+  testrpc \
+  -p \
+  9000 \
+  > /dev/null &
   testrpc_pid=$!
 fi
 
