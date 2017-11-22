@@ -3,44 +3,56 @@ pragma solidity ^0.4.11;
 import "../ownership/Ownable.sol";
 
 contract DataCentre is Ownable {
-    struct Crate {
+    struct Container {
         mapping(bytes32 => uint256) values;
         mapping(bytes32 => address) addresses;
-        mapping(bytes32 => bool) bools;
-        mapping(address => uint256) bals;
+        mapping(bytes32 => bool) switches;
+        mapping(address => uint256) balances;
+        mapping(address => mapping (address => uint)) constraints;
     }
 
-    mapping(bytes32 => Crate) crates;
+    mapping(bytes32 => Container) containers;
 
-    function setValue(bytes32 _crate, bytes32 _key, uint256 _value) onlyOwner {
-        crates[_crate].values[_key] = _value;
+    // Owner Functions
+    function setValue(bytes32 _container, bytes32 _key, uint256 _value) onlyOwner {
+        containers[_container].values[_key] = _value;
     }
 
-    function getValue(bytes32 _crate, bytes32 _key) constant returns(uint256) {
-        return crates[_crate].values[_key];
+    function setAddress(bytes32 _container, bytes32 _key, address _value) onlyOwner {
+        containers[_container].addresses[_key] = _value;
     }
 
-    function setAddress(bytes32 _crate, bytes32 _key, address _value) onlyOwner {
-        crates[_crate].addresses[_key] = _value;
+    function setBool(bytes32 _container, bytes32 _key, bool _value) onlyOwner {
+        containers[_container].switches[_key] = _value;
     }
 
-    function getAddress(bytes32 _crate, bytes32 _key) constant returns(address) {
-        return crates[_crate].addresses[_key];
+    function setBalanace(bytes32 _container, address _key, uint256 _value) onlyOwner {
+        containers[_container].balances[_key] = _value;
     }
 
-    function setBool(bytes32 _crate, bytes32 _key, bool _value) onlyOwner {
-        crates[_crate].bools[_key] = _value;
+
+    function setConstraint(bytes32 _container, address _source, address _key, uint256 _value) onlyOwner {
+        containers[_container].constraints[_source][_key] = _value;
     }
 
-    function getBool(bytes32 _crate, bytes32 _key) constant returns(bool) {
-        return crates[_crate].bools[_key];
+    // Constant Functions
+    function getValue(bytes32 _container, bytes32 _key) constant returns(uint256) {
+        return containers[_container].values[_key];
     }
 
-    function setBalanace(bytes32 _crate, address _key, uint256 _value) onlyOwner {
-        crates[_crate].bals[_key] = _value;
+    function getAddress(bytes32 _container, bytes32 _key) constant returns(address) {
+        return containers[_container].addresses[_key];
     }
 
-    function getBalanace(bytes32 _crate, address _key) constant returns(uint256) {
-        return crates[_crate].bals[_key];
+    function getBool(bytes32 _container, bytes32 _key) constant returns(bool) {
+        return containers[_container].switches[_key];
+    }
+
+    function getBalanace(bytes32 _container, address _key) constant returns(uint256) {
+        return containers[_container].balances[_key];
+    }
+
+    function getConstraint(bytes32 _container, address _source, address _key) constant returns(uint256) {
+        return containers[_container].constraints[_source][_key];
     }
 }
