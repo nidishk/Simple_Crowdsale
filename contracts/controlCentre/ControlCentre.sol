@@ -6,7 +6,9 @@ import "../ownership/Ownable.sol";
 
 contract ControlCentre is Ownable {
 
+  // Crowdsale Functions
   function pauseCrowdsale(address _crowdsaleAddress) public onlyOwner returns (bool) {
+    require(address(this) == ControlCentreInterface(_crowdsaleAddress).admins(1));
     address token = ControlCentreInterface(_crowdsaleAddress).token();
     ControlCentreInterface(_crowdsaleAddress).pause();
     ControlCentreInterface(_crowdsaleAddress).transferTokenOwnership(address(this));
@@ -17,6 +19,7 @@ contract ControlCentre is Ownable {
   }
 
   function unpauseCrowdsale(address _crowdsaleAddress) public onlyOwner returns (bool) {
+    require(address(this) == ControlCentreInterface(_crowdsaleAddress).admins(1));
     address token = ControlCentreInterface(_crowdsaleAddress).token();
     ControlCentreInterface(_crowdsaleAddress).transferTokenOwnership(address(this));
     ControlCentreInterface(token).unpause();
@@ -26,7 +29,32 @@ contract ControlCentre is Ownable {
     return true;
   }
 
+  function finishMinting(address _crowdsaleAddress) public onlyOwner returns (bool) {
+    require(address(this) == ControlCentreInterface(_crowdsaleAddress).admins(1));
+    address token = ControlCentreInterface(_crowdsaleAddress).token();
+    ControlCentreInterface(_crowdsaleAddress).pause();
+    ControlCentreInterface(_crowdsaleAddress).transferTokenOwnership(address(this));
+    ControlCentreInterface(token).finishMinting();
+    ControlCentreInterface(token).transferOwnership(owner);
+    ControlCentreInterface(_crowdsaleAddress).removeAdmin(address(this));
+    return true;
+  }
+
+  function startMinting(address _crowdsaleAddress) public onlyOwner returns (bool) {
+    require(address(this) == ControlCentreInterface(_crowdsaleAddress).admins(1));
+    require(ControlCentreInterface(_crowdsaleAddress).paused() == true);
+    address token = ControlCentreInterface(_crowdsaleAddress).token();
+    ControlCentreInterface(_crowdsaleAddress).transferTokenOwnership(address(this));
+    ControlCentreInterface(token).startMinting();
+    ControlCentreInterface(token).transferOwnership(_crowdsaleAddress);
+    ControlCentreInterface(_crowdsaleAddress).unpause();
+    ControlCentreInterface(_crowdsaleAddress).removeAdmin(address(this));
+    return true;
+  }
+
+  // Data Centre Functions
   function transferDataCentreOwnership(address _crowdsaleAddress, address _nextOwner) public onlyOwner returns (bool) {
+    require(address(this) == ControlCentreInterface(_crowdsaleAddress).admins(1));
     address token = ControlCentreInterface(_crowdsaleAddress).token();
     ControlCentreInterface(_crowdsaleAddress).pause();
     ControlCentreInterface(_crowdsaleAddress).transferTokenOwnership(address(this));
@@ -38,6 +66,7 @@ contract ControlCentre is Ownable {
   }
 
   function returnDataCentreOwnership(address _crowdsaleAddress) public onlyOwner returns (bool) {
+    require(address(this) == ControlCentreInterface(_crowdsaleAddress).admins(1));
     address token = ControlCentreInterface(_crowdsaleAddress).token();
     address dataCentreAddr = ControlCentreInterface(token).dataCentreAddr();
     ControlCentreInterface(dataCentreAddr).transferOwnership(token);
@@ -48,4 +77,5 @@ contract ControlCentre is Ownable {
     ControlCentreInterface(_crowdsaleAddress).removeAdmin(address(this));
     return true;
   }
+
 }
