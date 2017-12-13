@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import '../token/MintableToken.sol';
-import '../math/SafeMath.sol';
+import '../token/Token.sol';
+import '../SafeMath.sol';
 
 /**
  * @title Crowdsale
@@ -20,7 +20,7 @@ contract Crowdsale {
   }
 
   // The token being sold
-  MintableToken public token;
+  Token public token;
 
   // start and end timestamps where investments are allowed (both inclusive)
   uint256 public startTime;
@@ -30,9 +30,9 @@ contract Crowdsale {
   address public wallet;
 
   // how many token units a buyer gets per wei
-  mapping(uint => Rate) internal rate;
+  Rate[15] internal rate;
 
-
+  uint256 public weiRaised;
   /**
    * event for token purchase logging
    * @param purchaser who paid for the tokens
@@ -48,12 +48,12 @@ contract Crowdsale {
     require(_ends.length == _swapRate.length);
     require(_ends[0] > _startTime);
 
-    token = SimpleToken(_tokenAddr);
+    token = Token(_tokenAddr);
     wallet = _wallet;
     startTime = _startTime;
     endTime = _ends[_ends.length - 1];
 
-    for(uint8 i = 0; i < _startTime.length; i++) {
+    for(uint8 i = 0; i < _ends.length; i++) {
       require(_swapRate[i] > 0);
       if (i != 0) require(_ends[i] > _ends[i-1]);
       rate[i].end = _ends[i];
@@ -62,11 +62,11 @@ contract Crowdsale {
   }
 
   function currentRate() public constant returns (uint256) {
-    if(now > endTime) return  0;
+    if(now < startTime) return  0;
 
     for(uint8 i = 0; i < rate.length; i++) {
-      if(now < rate[i].startTime) {
-        return rate[i - 1].swapRate;
+      if(now < rate[i].end) {
+        return rate[i].swapRate;
       }
     }
   }

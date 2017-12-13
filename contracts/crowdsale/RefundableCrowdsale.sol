@@ -1,7 +1,6 @@
 pragma solidity ^0.4.18;
 
 
-import '../math/SafeMath.sol';
 import './FinalizableCrowdsale.sol';
 import './RefundVault.sol';
 
@@ -13,7 +12,6 @@ import './RefundVault.sol';
  * Uses a RefundVault as the crowdsale's vault.
  */
 contract RefundableCrowdsale is FinalizableCrowdsale {
-  using SafeMath for uint256;
 
   // minimum amount of funds to be raised in weis
   uint256 public goal;
@@ -53,7 +51,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     super.finalization();
   }
 
-  function goalReached() public view returns (bool) {
+  function goalReached() public constant returns (bool) {
     return weiRaised >= goal;
   }
 

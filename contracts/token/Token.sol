@@ -6,7 +6,7 @@ import './SimpleControl.sol';
 /**
  Simple Token based on OpenZeppelin token contract
  */
-contract SimpleToken is SimpleControl {
+contract Token is SimpleControl {
 
   string public constant name = "Simple Token";
   string public constant symbol = "STK";
@@ -16,7 +16,7 @@ contract SimpleToken is SimpleControl {
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
-  function SimpleToken(address _dataCentreAddr)
+  function Token(address _dataCentreAddr)
     SimpleControl(_dataCentreAddr)
   {
     if(_dataCentreAddr == address(0)) {

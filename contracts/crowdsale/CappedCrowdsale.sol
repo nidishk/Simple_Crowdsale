@@ -1,6 +1,5 @@
 pragma solidity ^0.4.11;
 
-import '../math/SafeMath.sol';
 import './Crowdsale.sol';
 
 /**
@@ -14,12 +13,12 @@ contract CappedCrowdsale is Crowdsale {
     uint256 cap;
   }
 
-  mapping(uint => SoftCap) internal softCap;
+  SoftCap[15] public softCap;
   uint256[15] public milestoneTotalSupply;
 
   function CappedCrowdsale(uint256[] _capTimes, uint256[] _cap) public {
     require(_capTimes.length == _cap.length);
-    require(_capTimes[0] > rate[0].startTime);
+    require(_capTimes[0] > softCap[0].startTime);
 
     softCap[0].startTime = _capTimes[0];
     softCap[0].cap = _cap[0];
@@ -41,17 +40,9 @@ contract CappedCrowdsale is Crowdsale {
     }
   }
 
-  function setSupply(uint8 phase, uint256 newSupply) internal constant returns (bool) {
-    milestoneTotalSupply[phase] = newSupply;
-    return softCap[phase].cap >= milestoneTotalSupply[phase];
+  function setSupply(uint8 currentPhase, uint256 newSupply) internal constant returns (bool) {
+    milestoneTotalSupply[currentPhase] = newSupply;
+    return softCap[currentPhase].cap >= milestoneTotalSupply[currentPhase];
   }
 
-  // overriding Crowdsale#hasEnded to add hardCap logic
-  // @return true if crowdsale event has ended
-  function hasEnded() public constant returns (bool) {
-    uint256 totalSupply = token.totalSupply();
-    bool hardCapReached = weiRaised >= hardCap;
-    bool softCapReached = totalSupply >= softCap;
-    return super.hasEnded() || hardCapReached || softCapReached;
-  }
 }

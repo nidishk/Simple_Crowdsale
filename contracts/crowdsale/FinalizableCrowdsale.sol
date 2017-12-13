@@ -1,6 +1,5 @@
 pragma solidity ^0.4.18;
 
-import '../math/SafeMath.sol';
 import '../ownership/Ownable.sol';
 import './Crowdsale.sol';
 
@@ -10,7 +9,6 @@ import './Crowdsale.sol';
  * after finishing.
  */
 contract FinalizableCrowdsale is Crowdsale, Ownable {
-  using SafeMath for uint256;
 
   bool public isFinalized = false;
 
