@@ -32,6 +32,26 @@ contract CappedCrowdsale is Crowdsale {
     _capTimes[_capTimes.length - 1];
   }
 
+  // low level token purchase function
+  function buyTokens(address beneficiary) public payable {
+    require(beneficiary != address(0));
+    require(validPurchase());
+
+    uint256 weiAmount = msg.value;
+    // calculate token amount to be created
+    uint256 tokens = weiAmount.mul(currentRate());
+    uint8 currentPhase = phase();
+    require(setSupply(currentPhase, milestoneTotalSupply[currentPhase].add(tokens)));
+    
+    // update state
+    weiRaised = weiRaised.add(weiAmount);
+
+    token.mint(beneficiary, tokens);
+    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+
+    forwardFunds();
+  }
+
   function phase() internal constant returns (uint8) {
     for(uint8 i = 0; i < softCap.length; i++) {
       if(now < softCap[i].startTime) {
