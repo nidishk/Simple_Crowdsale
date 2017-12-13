@@ -9,7 +9,7 @@ import './Crowdsale.sol';
 contract CappedCrowdsale is Crowdsale {
 
   struct SoftCap {
-    uint256 startTime;
+    uint256 end;
     uint256 cap;
   }
 
@@ -18,18 +18,14 @@ contract CappedCrowdsale is Crowdsale {
 
   function CappedCrowdsale(uint256[] _capTimes, uint256[] _cap) public {
     require(_capTimes.length == _cap.length);
-    require(_capTimes[0] > softCap[0].startTime);
+    require(_capTimes[0] > startTime);
 
-    softCap[0].startTime = _capTimes[0];
-    softCap[0].cap = _cap[0];
-
-    for(uint8 i = 1; i < _capTimes.length; i++) {
+    for(uint8 i = 0; i < _capTimes.length; i++) {
       require(_cap[i] > 0);
-      require(_capTimes[i] > _capTimes[i-1]);
-      softCap[i].startTime = _capTimes[i];
+      if(i != 0) require(_capTimes[i] > _capTimes[i-1]);
+      softCap[i].end = _capTimes[i];
       softCap[i].cap = _cap[i];
     }
-    _capTimes[_capTimes.length - 1];
   }
 
   // low level token purchase function
@@ -42,7 +38,7 @@ contract CappedCrowdsale is Crowdsale {
     uint256 tokens = weiAmount.mul(currentRate());
     uint8 currentPhase = phase();
     require(setSupply(currentPhase, milestoneTotalSupply[currentPhase].add(tokens)));
-    
+
     // update state
     weiRaised = weiRaised.add(weiAmount);
 
@@ -54,8 +50,8 @@ contract CappedCrowdsale is Crowdsale {
 
   function phase() internal constant returns (uint8) {
     for(uint8 i = 0; i < softCap.length; i++) {
-      if(now < softCap[i].startTime) {
-        return i - 1;
+      if(now < softCap[i].end) {
+        return i;
       }
     }
   }
