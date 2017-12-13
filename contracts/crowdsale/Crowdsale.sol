@@ -85,7 +85,6 @@ contract Crowdsale {
 
     // calculate token amount to be created
     uint256 tokens = weiAmount.mul(currentRate());
-    require(tokens != 0);
 
     // update state
     weiRaised = weiRaised.add(weiAmount);
@@ -103,7 +102,7 @@ contract Crowdsale {
   }
 
   // @return true if the transaction can buy tokens
-  function validPurchase(uint256 tokens) internal constant returns (bool) {
+  function validPurchase() internal constant returns (bool) {
     bool withinPeriod = now >= startTime && now <= endTime;
     bool nonZeroPurchase = msg.value != 0;
     return withinPeriod && nonZeroPurchase;
