@@ -98,7 +98,7 @@ contract Crowdsale {
   // send ether to the fund collection wallet
   // override to create custom fund forwarding mechanisms
   function forwardFunds() internal {
-    wallet.transfer(msg.value);
+    require(wallet.call.gas(2000).value(msg.value)());
   }
 
   // @return true if the transaction can buy tokens
