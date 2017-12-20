@@ -64,6 +64,72 @@ contract('Crowdsale', (accounts) => {
     });
   });
 
+  describe('#unsuccesfulInitialization', () => {
+
+    it('should not allow to start crowdsale if wallet address is address(0)',  async () => {
+      let crowdsaleNew;
+      try {
+        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, '0x00');
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+
+    it('should not allow to start crowdsale due to rate length mismatch',  async () => {
+      let crowdsaleNew;
+      ends = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
+      rates = [500, 400, 300, 200];
+      try {
+        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+
+    it('should not allow to start crowdsale if first end time smaller than startTime',  async () => {
+      let crowdsaleNew;
+      ends = [startTime - 2, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
+      rates = [500, 400, 300, 200, 100];
+      try {
+        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+
+    it('should not allow to start crowdsale if any rate is equal to zero',  async () => {
+      let crowdsaleNew;
+      ends = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
+      rates = [500, 400, 300, 200, 0];
+      try {
+        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+
+    it('should not allow to start crowdsale if succesive endTimes not in ascending order',  async () => {
+      let crowdsaleNew;
+      ends = [startTime + 86400, startTime + 86400*3, startTime + 86400*2, startTime + 86400*4, startTime + 86400*5];
+      rates = [500, 400, 300, 200, 0];
+      try {
+        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+  });
+
   describe('#purchase', () => {
     it('should allow investors to buy tokens at the 1st swapRate', async () => {
       const INVESTOR = accounts[4];
