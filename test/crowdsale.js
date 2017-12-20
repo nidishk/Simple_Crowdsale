@@ -159,6 +159,82 @@ contract('Crowdsale', (accounts) => {
     });
   });
 
+  describe('#invalidPurchase', () => {
+
+    it('should not allow investors to buy tokens if beneficiary address is address(0)', async () => {
+      const INVESTOR = accounts[4];
+
+      // buy tokens
+      try {
+        await crowdsale.buyTokens('0x00', {value: MOCK_ONE_ETH, from: INVESTOR});
+      } catch(error) {
+        assertJump(error);
+      }
+
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rates[0]);
+      assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), 0, 'tokens still deposited into the INVESTOR balance');
+    });
+
+    it('should not allow investors to buy tokens if beneficiary address is msg.value is 0', async () => {
+      const INVESTOR = accounts[4];
+
+      // buy tokens
+      try {
+        await crowdsale.buyTokens('0x00', {value: 0, from: INVESTOR});
+      } catch(error) {
+        assertJump(error);
+      }
+
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rates[0]);
+      assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), 0, 'tokens still deposited into the INVESTOR balance');
+    });
+
+    it('should not allow investors to buy tokens if startTime not reached', async () => {
+      const INVESTOR = accounts[4];
+      let crowdsaleNew;
+      const startTime1 = startTime + 100;
+      crowdsaleNew = await Crowdsale.new(startTime1, ends, rates, token.address, multisigWallet.address);
+
+      // buy tokens
+      try {
+        await crowdsale.buyTokens('0x00', {value: MOCK_ONE_ETH, from: INVESTOR});
+      } catch(error) {
+        assertJump(error);
+      }
+
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rates[0]);
+      assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), 0, 'tokens still deposited into the INVESTOR balance');
+    });
+
+    it('should allow not investors to buy tokens after endTime', async () => {
+      const INVESTOR = accounts[4];
+
+      await increaseTime(ends[3] - startTime);
+
+      // buy tokens
+      try {
+        await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      } catch(error) {
+        const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+        const tokensBalance = await token.balanceOf.call(INVESTOR);
+        assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
+        assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
+      }
+    });
+  });
+
   describe('#purchase', () => {
     it('should allow investors to buy tokens at the 1st swapRate', async () => {
       const INVESTOR = accounts[4];
@@ -259,21 +335,5 @@ contract('Crowdsale', (accounts) => {
       assert.equal(walletBalance.toNumber(), 5 * MOCK_ONE_ETH, 'ether not deposited into the wallet');
       assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
     });
-  });
-
-  it('should allow not investors to buy tokens after endTime', async () => {
-    const INVESTOR = accounts[4];
-
-    await increaseTime(ends[3] - startTime);
-
-    // buy tokens
-    try {
-      await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
-    } catch(error) {
-      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
-      const tokensBalance = await token.balanceOf.call(INVESTOR);
-      assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
-      assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
-    }
   });
 });
