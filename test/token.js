@@ -11,6 +11,7 @@ const MOCK_ONE_ETH = web3.toWei(0.000001, 'ether'); // diluted ether value for t
 
 contract('Token', (accounts) => {
   let token;
+  let dataCentre;
 
   beforeEach(async () => {
     await advanceBlock();
@@ -213,4 +214,81 @@ contract('Token', (accounts) => {
       }
     });
   });
+
+  describe('#security considerations', () => {
+    it('should allow to transfer ownership of DataCentre contract to FOUNDERS manually', async () => {
+      // pause and transfer ownership
+      await token.pause();
+      await token.transferDataCentreOwnership(accounts[0]);
+      const dataCentreAddr = await token.dataCentreAddr.call();
+      const dataCentre = DataCentre.at(dataCentreAddr);
+      const newOwnerDataCentre = await dataCentre.owner.call();
+
+      assert.equal(newOwnerDataCentre, accounts[0], 'ownership not transferred');
+    });
+
+    it('should allow to transfer ownership of DataCentre contract from FOUNDERS to DataCentre manually', async () => {
+      // pause and transfer ownership
+      await token.pause();
+      await token.transferDataCentreOwnership(accounts[0]);
+      const dataCentreAddr = await token.dataCentreAddr.call();
+      const dataCentre = DataCentre.at(dataCentreAddr);
+      let newOwnerDataCentre = await dataCentre.owner.call();
+
+      assert.equal(newOwnerDataCentre, accounts[0], 'ownership not transferred');
+
+      await dataCentre.transferOwnership(token.address);
+      newOwnerDataCentre = await dataCentre.owner.call();
+
+      assert.equal(newOwnerDataCentre, token.address, 'ownership not transferred');
+    });
+
+    it('should not allow to transfer ownership of DataCentre contract to FOUNDERS when not Paused', async () => {
+      // pause and transfer ownership
+      try {
+        await token.transferDataCentreOwnership(accounts[0]);
+      } catch(error) {
+        assertJump(error);
+      }
+      const dataCentreAddr = await token.dataCentreAddr.call();
+      const dataCentre = DataCentre.at(dataCentreAddr);
+      const newOwnerDataCentre = await dataCentre.owner.call();
+
+      assert.equal(newOwnerDataCentre, token.address, 'ownership not transferred');
+    });
+  });
+
+
+    describe('#upgradability', () => {
+      it('should allow to upgrade token contract manually', async () => {
+
+        const swapRate = new BigNumber(256);
+        const INVESTOR = accounts[4];
+        const BENEFICIARY = accounts[5];
+        // buy tokens
+        await scoopCrowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+        const tokensBalance = await token.balanceOf.call(INVESTOR);
+        const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+        assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
+
+        // // begin the upgrade process
+        await scoopCrowdsale.pause();
+        await scoopCrowdsale.transferTokenOwnership(accounts[0]);
+        await token.pause();
+        await token.transferDataCentreOwnership(accounts[0]);
+
+        // deploy new token contract
+        const dataCentre = await DataCentre.at(await token.dataCentreAddr());
+        const tokenNew = await ScoopToken.new(dataCentre.address);
+        await dataCentre.transferOwnership(tokenNew.address);
+        const dataCentreSet = await tokenNew.dataCentreAddr.call();
+        assert.equal(dataCentreSet, dataCentre.address, 'dataCentre not set');
+
+
+        // try a transfer operation in the new token contract
+        await tokenNew.transfer(BENEFICIARY, tokensBalance, {from: INVESTOR});
+        const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
+        assert.equal(tokensBalance.toNumber(), tokenBalanceTransfered.toNumber(), 'tokens not transferred');
+      });
+    })
 })
