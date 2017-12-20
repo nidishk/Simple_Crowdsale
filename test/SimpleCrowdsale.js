@@ -56,6 +56,32 @@ contract('SimpleCrowdsale', (accounts) => {
     assert.equal(await token.owner(), multisigWallet.address, 'ownership not transferred');
   });
 
+  it('should not allow to add and remove admins', async () => {
+
+    await simpleCrowdsale.addAdmin(accounts[2]);
+    await simpleCrowdsale.addAdmin(accounts[3]);
+
+    assert.equal(await simpleCrowdsale.admins(1), accounts[2], 'governance not added');
+    assert.equal(await simpleCrowdsale.admins(2), accounts[3], 'governance not added');
+
+    await simpleCrowdsale.removeAdmin(accounts[2]);
+    await simpleCrowdsale.removeAdmin(accounts[3]);
+
+    try {
+      await simpleCrowdsale.admins.call(1);
+      assert.fail('should have failed before');
+    } catch(error) {
+      assertJump(error);
+    }
+
+    try {
+      await simpleCrowdsale.admins.call(2);
+      assert.fail('should have failed before');
+    } catch(error) {
+      assertJump(error);
+    }
+  });
+
   it('should allow to buy Token when not Paused', async () => {
     const INVESTOR = accounts[4];
 

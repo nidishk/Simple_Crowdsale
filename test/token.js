@@ -68,6 +68,25 @@ contract('Token', (accounts) => {
       }
     });
 
+    it('should not allow transfer tokens when Paused', async () => {
+
+      await token.pause();
+
+      const INVESTOR = accounts[0];
+      const BENEFICIARY = accounts[5];
+      const swapRate = new BigNumber(256);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+
+      try {
+        await token.transfer(BENEFICIARY, tokensAmount, {from: INVESTOR});
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+        const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
+        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens transferred');
+      }
+    });
+
     it('should allow transferring to a ERC223 Receiver contract', async () => {
 
       const INVESTOR = accounts[0];
@@ -120,6 +139,23 @@ contract('Token', (accounts) => {
       assert.equal(tokensAmount.toNumber(), tokenBalanceTransfered.toNumber(), 'tokens not transferred');
     });
 
+    it('should not allow investors to approve when Paused', async () => {
+
+      await token.pause();
+
+      const INVESTOR = accounts[0];
+      const BENEFICIARY = accounts[5];
+      const swapRate = new BigNumber(256);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+
+      try {
+        await token.approve(BENEFICIARY, tokensAmount, {from: INVESTOR});
+      } catch(error) {
+        const tokenBalanceAllowed = await token.allowance.call(INVESTOR, BENEFICIARY);
+        assert.equal(tokenBalanceAllowed.toNumber(), 0, 'tokens still allowed');
+      }
+    });
+
     it('should not allow transferFrom tokens more than allowed', async () => {
 
       const INVESTOR = accounts[0];
@@ -136,27 +172,28 @@ contract('Token', (accounts) => {
       } catch(error) {
         assertJump(error);
         const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens not transferred');
+        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens still transferred');
       }
     });
 
-      it('should not allow transferFrom tokens that are not allowed', async () => {
+    it('should not allow transferFrom tokens when Paused', async () => {
 
-        const INVESTOR = accounts[0];
-        const BENEFICIARY = accounts[5];
-        const SCAMMER = accounts[4];
-        const swapRate = new BigNumber(256);
-        const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+      const INVESTOR = accounts[0];
+      const BENEFICIARY = accounts[5];
+      const swapRate = new BigNumber(256);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
 
-        try {
-          await token.transferFrom(INVESTOR, SCAMMER, tokensAmount, {from: BENEFICIARY});
-          assert.fail('should have failed before');
-        } catch(error) {
-          assertJump(error);
-          const tokenBalanceTransfered = await token.balanceOf.call(SCAMMER);
-          assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens not transferred');
-        }
-      });
+      await token.pause();
+
+      try {
+        await token.transferFrom(INVESTOR, BENEFICIARY, tokensAmount, {from: BENEFICIARY});
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+        const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
+        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens still transferred');
+      }
+    });
 
     it('should not allow scammers to approve un-owned tokens', async () => {
 
@@ -172,7 +209,7 @@ contract('Token', (accounts) => {
       } catch(error) {
         assertJump(error);
         const tokenBalanceAllowed = await token.allowance.call(INVESTOR, BENEFICIARY);
-        assert.equal(tokenBalanceAllowed.toNumber(), 0, 'tokens not transferred');
+        assert.equal(tokenBalanceAllowed.toNumber(), 0, 'tokens still transferred');
       }
     });
   });
