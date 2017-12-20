@@ -34,4 +34,9 @@ contract SimpleCrowdsale is CappedCrowdsale, Pausable {
   function transferTokenOwnership(address _nextOwner) onlyAdmins whenPaused {
     token.transferOwnership(_nextOwner);
   }
+
+  // low level token purchase function
+  function buyTokens(address beneficiary) public whenNotPaused payable {
+    super.buyTokens(beneficiary);
+  }
 }
