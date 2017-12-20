@@ -64,6 +64,20 @@ contract('ControlCentre', (accounts) => {
       }
     });
 
+    it('should not allow Control Centre to change state if it doesnt have right', async () => {
+      // checking cap details
+      try {
+        await controlCentre.pauseCrowdsale(simpleCrowdsale.address);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      const stateCrowdsale = await simpleCrowdsale.paused.call();
+      const stateToken = await token.paused.call();
+      assert.equal(stateCrowdsale, false, 'crowdsale not paused');
+      assert.equal(stateToken, false, 'token not paused');
+    });
+
     it('should allow to unpause SimpleCrowdsale using controlCentre', async () => {
       // checking cap details
       await simpleCrowdsale.addAdmin(controlCentre.address);
@@ -119,6 +133,28 @@ contract('ControlCentre', (accounts) => {
       } catch(error) {
         assertJump(error);
       }
+    });
+
+    it('should not allow to start minting when crowdsale not paused', async () => {
+      // checking cap details
+      await simpleCrowdsale.addAdmin(controlCentre.address);
+      await controlCentre.finishMinting(simpleCrowdsale.address);
+
+      await token.transferOwnership(simpleCrowdsale.address);
+      await simpleCrowdsale.addAdmin(controlCentre.address);
+      await simpleCrowdsale.unpause();
+
+      try {
+        await controlCentre.startMinting(simpleCrowdsale.address);
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+      }
+
+      const stateCrowdsale = await simpleCrowdsale.paused.call();
+      const mintingStatus = await token.mintingFinished.call();
+      assert.equal(stateCrowdsale, false, 'crowdsale not unpaused');
+      assert.equal(mintingStatus, true, 'minting still finished');
     });
 
     it('should allow to transfer DataCentre ownership of Token to FOUNDERS using controlCentre', async () => {
