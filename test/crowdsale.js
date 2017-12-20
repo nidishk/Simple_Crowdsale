@@ -130,6 +130,35 @@ contract('Crowdsale', (accounts) => {
     });
   });
 
+  describe('#currentRate', () => {
+
+    it('should return 0 rate before startTime',  async () => {
+      let crowdsaleNew;
+      const startTime1 = startTime + 100;
+      ends = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
+      rates = [500, 400, 300, 200, 100];
+
+      crowdsaleNew = await Crowdsale.new(startTime1, ends, rates, token.address, multisigWallet.address);
+
+      const rate = await crowdsaleNew.currentRate();
+      assert.equal(rate.toNumber(), 0, 'rate return not correct');
+    });
+
+    it('should return 0 rate after endTime',  async () => {
+      let crowdsaleNew;
+      const startTime1 = startTime + 100;
+      ends = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
+      rates = [500, 400, 300, 200, 100];
+
+      crowdsaleNew = await Crowdsale.new(startTime1, ends, rates, token.address, multisigWallet.address);
+
+      await increaseTime(ends[4] - startTime);
+
+      const rate = await crowdsaleNew.currentRate();
+      assert.equal(rate.toNumber(), 0, 'rate return not correct');
+    });
+  });
+
   describe('#purchase', () => {
     it('should allow investors to buy tokens at the 1st swapRate', async () => {
       const INVESTOR = accounts[4];
