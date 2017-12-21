@@ -45,7 +45,7 @@ contract('SimpleCrowdsale', (accounts) => {
     const tokenNew = await Token.new();
     const multisigNew = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
     await simpleCrowdsale.setContracts(tokenNew.address, multisigNew.address);
-    assert.equal(await simpleCrowdsale.token(), tokenNew.address, 'token contract not set');
+    assert.equal(await simpleCrowdsale.tokenAddr(), tokenNew.address, 'token contract not set');
     assert.equal(await simpleCrowdsale.wallet(), multisigNew.address, 'wallet contract not set');
   });
 
@@ -109,7 +109,7 @@ contract('SimpleCrowdsale', (accounts) => {
       assertJump(error);
     }
 
-    assert.equal(await simpleCrowdsale.token(), token.address, 'token contract still set');
+    assert.equal(await simpleCrowdsale.tokenAddr(), token.address, 'token contract still set');
     assert.equal(await simpleCrowdsale.wallet(), multisigWallet.address, 'wallet contract still set');
   });
 

@@ -20,7 +20,7 @@ contract Crowdsale {
   }
 
   // The token being sold
-  Token public token;
+  address public tokenAddr;
 
   // start and end timestamps where investments are allowed (both inclusive)
   uint256 public startTime;
@@ -48,7 +48,7 @@ contract Crowdsale {
     require(_ends.length == _swapRate.length);
     require(_ends[0] > _startTime);
 
-    token = Token(_tokenAddr);
+    tokenAddr = _tokenAddr;
     wallet = _wallet;
     startTime = _startTime;
     endTime = _ends[_ends.length - 1];
@@ -89,7 +89,7 @@ contract Crowdsale {
     // update state
     weiRaised = weiRaised.add(weiAmount);
 
-    token.mint(beneficiary, tokens);
+    Token(tokenAddr).mint(beneficiary, tokens);
     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
     forwardFunds();

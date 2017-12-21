@@ -46,7 +46,7 @@ contract('Crowdsale', (accounts) => {
     assert.equal(28350000e18, initialBalance.toNumber(), 'initialBalance for sale NOT distributed properly');
 
     //checking token and wallet address
-    const tokenAddress = await cappedCrowdsale.token.call();
+    const tokenAddress = await cappedCrowdsale.tokenAddr.call();
     const walletAddress = await cappedCrowdsale.wallet.call();
     assert.equal(tokenAddress, token.address, 'address for token in contract not set');
     assert.equal(walletAddress, multisigWallet.address, 'address for multisig wallet in contract not set');

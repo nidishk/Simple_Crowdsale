@@ -28,11 +28,11 @@ contract SimpleCrowdsale is CappedCrowdsale, Pausable {
   // Admin Functions
   function setContracts(address _tokenAddr, address _wallet) onlyAdmins whenPaused {
     wallet = _wallet;
-    token = Token(_tokenAddr);
+    tokenAddr = _tokenAddr;
   }
 
   function transferTokenOwnership(address _nextOwner) onlyAdmins whenPaused {
-    token.transferOwnership(_nextOwner);
+    Token(tokenAddr).transferOwnership(_nextOwner);
   }
 
   // low level token purchase function

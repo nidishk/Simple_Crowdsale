@@ -6,7 +6,7 @@ contract ControlCentreInterface {
   bool public mintingFinished;
   address[] public admins;
   address public owner;
-  address public token;
+  address public tokenAddr;
   address public dataCentreAddr;
 
   function pause() public;
