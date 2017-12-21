@@ -1,5 +1,5 @@
 const SimpleCrowdsale = artifacts.require('./helpers/MockSimpleCrowdsale.sol');
-const Token = artifacts.require('./token/Token.sol');
+const Token = artifacts.require('./example/SimpleToken.sol');
 const DataCentre = artifacts.require('./token/DataCentre.sol');
 const ControlCentre = artifacts.require('./controlCentre/ControlCentre.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
