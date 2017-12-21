@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 import "../crowdsale/CappedCrowdsale.sol";
-import "../Pausable.sol";
+import "../crowdsale/PausableCrowdsale.sol";
 
 
 /**
@@ -15,28 +15,15 @@ import "../Pausable.sol";
  * After adding multiple features it's good practice to run integration tests
  * to ensure that subcontracts works together as intended.
  */
-contract SimpleCrowdsale is CappedCrowdsale, Pausable {
+contract SimpleCrowdsale is CappedCrowdsale, PausableCrowdsale {
 
 
   function SimpleCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet, uint256[] _capTimes, uint256[] _cap)
     Crowdsale(_startTime, _ends, _swapRate, _tokenAddr, _wallet)
     CappedCrowdsale(_capTimes, _cap)
+    PausableCrowdsale()
   {
 
   }
 
-  // Admin Functions
-  function setContracts(address _tokenAddr, address _wallet) onlyAdmins whenPaused {
-    wallet = _wallet;
-    tokenAddr = _tokenAddr;
-  }
-
-  function transferTokenOwnership(address _nextOwner) onlyAdmins whenPaused {
-    Token(tokenAddr).transferOwnership(_nextOwner);
-  }
-
-  // low level token purchase function
-  function buyTokens(address beneficiary) public whenNotPaused payable {
-    super.buyTokens(beneficiary);
-  }
 }
