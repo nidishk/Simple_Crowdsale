@@ -35,6 +35,26 @@ contract('Crowdsale', (accounts) => {
     await token.transferOwnership(cappedCrowdsale.address);
   });
 
+  it('should not allow investors to buy when beneficiary is address(0)', async () => {
+    const INVESTORS = accounts[4];
+    const amountEth = new BigNumber(((caps[0]/1e18)/rates[0]) - 1).mul(MOCK_ONE_ETH);
+
+    //  buy tokens
+    try {
+      await cappedCrowdsale.buyTokens('0x00', {value: amountEth, from: INVESTORS});
+    } catch(error) {
+      assertJump(error);
+    }
+    const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+    const balanceInvestor = await token.balanceOf.call(INVESTORS);
+    const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(0);
+    const totalSupplyToken = await token.totalSupply.call();
+
+    assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
+    assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
+    assert.equal(totalSupplyPhase1.toNumber(), 0, 'balance not added to totalSupply');
+  });
+
   describe('#cappedCrowdsaleDetails', () => {
     it('should allow start cappedCrowdsale properly', async () => {
     // checking startTimes
@@ -69,6 +89,73 @@ contract('Crowdsale', (accounts) => {
     assert.equal(softCap[1][4].toNumber(), caps[4], 'swapRate not set right');
     });
   });
+
+  describe('#unsuccesfulInitialization', () => {
+
+    it('should not allow to start crowdsale if wallet address is address(0)',  async () => {
+      let crowdsaleNew;
+      try {
+        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, '0x00', capTimes, caps);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+
+    it('should not allow to start crowdsale due to softCap length mismatch',  async () => {
+      let crowdsaleNew;
+      capTimes = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4];
+      caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
+      try {
+        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+
+    it('should not allow to start crowdsale if first cap time smaller than startTime',  async () => {
+      let crowdsaleNew;
+      capTimes = [startTime - 100, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4];
+      caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
+      try {
+        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+
+    it('should not allow to start crowdsale if any cap is equal to zero',  async () => {
+      let crowdsaleNew;
+      capTimes = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
+      caps = [900000e18, 900000e18, 900000e18, 900000e18, 0];
+      try {
+        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+
+    it('should not allow to start crowdsale if succesive endTimes not in ascending order',  async () => {
+      let crowdsaleNew;
+      capTimes = [startTime + 86400, startTime + 86400*3, startTime + 86400*2, startTime + 86400*4, startTime + 86400*5];
+      caps = [900000e18, 900000e18, 900000e18, 900000e18, 0];
+      try {
+        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+  });
+
 
   describe('#purchaseBelowCaps', () => {
 
