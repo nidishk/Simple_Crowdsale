@@ -18,6 +18,7 @@ contract('RefundVault', function ([_, owner, wallet, investor]) {
     this.vault = await RefundVault.new(wallet, {from: owner})
   })
 
+
   it('should accept contributions', async function () {
     await this.vault.deposit(investor, {value, from: owner}).should.be.fulfilled
   })
@@ -58,4 +59,17 @@ contract('RefundVault', function ([_, owner, wallet, investor]) {
     post.minus(pre).should.be.bignumber.equal(value)
   })
 
+  it('should not deploy refund vault without wallet address', async function () {
+    await RefundVault.new('0x00', {from: owner}).should.be.rejectedWith(EVMThrow)
+  })
+
+  it('should not accept contributions when state not active', async function () {
+    await this.vault.enableRefunds({from: owner}).should.be.fulfilled
+    await this.vault.deposit(investor, {value, from: owner}).should.be.rejectedWith(EVMThrow)
+  })
+
+  it('should not accept contributions when state not active', async function () {
+    await this.vault.enableRefunds({from: owner}).should.be.fulfilled
+    await this.vault.close({from: owner}).should.be.rejectedWith(EVMThrow)
+  })
 })
