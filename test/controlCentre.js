@@ -68,6 +68,7 @@ contract('ControlCentre', (accounts) => {
       // checking cap details
       try {
         await controlCentre.pauseCrowdsale(simpleCrowdsale.address);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }

@@ -177,7 +177,9 @@ contract('Token', (accounts) => {
 
       try {
         await token.transfer(BENEFICIARY, tokensAmount, {from: INVESTOR});
+        assert.fail('should have failed before');
       } catch(error) {
+        assertJump(error);
         const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
         assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens still transferred');
       }
@@ -214,7 +216,9 @@ contract('Token', (accounts) => {
 
       try {
         await token.approve(BENEFICIARY, tokensAmount, {from: INVESTOR});
+        assert.fail('should have failed before');
       } catch(error) {
+        assertJump(error);
         const tokenBalanceAllowed = await token.allowance.call(INVESTOR, BENEFICIARY);
         assert.equal(tokenBalanceAllowed.toNumber(), 0, 'tokens still allowed');
       }
@@ -229,6 +233,7 @@ contract('Token', (accounts) => {
 
       try {
         await token.approve(BENEFICIARY, tokensAmount, {from: BENEFICIARY});
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error)
         const tokenBalanceAllowed = await token.allowance.call(INVESTOR, BENEFICIARY);
@@ -326,6 +331,7 @@ contract('Token', (accounts) => {
       // pause and transfer ownership
       try {
         await token.transferDataCentreOwnership(accounts[0]);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }

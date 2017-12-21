@@ -42,6 +42,7 @@ contract('Crowdsale', (accounts) => {
     //  buy tokens
     try {
       await cappedCrowdsale.buyTokens('0x00', {value: amountEth, from: INVESTORS});
+      assert.fail('should have failed before');
     } catch(error) {
       assertJump(error);
     }
@@ -55,6 +56,23 @@ contract('Crowdsale', (accounts) => {
     assert.equal(totalSupplyPhase1.toNumber(), 0, 'balance not added to totalSupply');
   });
 
+  it('should allow not investors to buy tokens after endTime', async () => {
+    const INVESTOR = accounts[4];
+    await increaseTime(ends[4] - startTime + 1);
+
+    // buy tokens
+    try {
+      await cappedCrowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      assert.fail('should have failed before');
+    } catch(error) {
+      assertJump(error);
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+      assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
+    }
+  });
+  
   describe('#cappedCrowdsaleDetails', () => {
     it('should allow start cappedCrowdsale properly', async () => {
     // checking startTimes
@@ -96,6 +114,7 @@ contract('Crowdsale', (accounts) => {
       let crowdsaleNew;
       try {
         crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, '0x00', capTimes, caps);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -109,6 +128,7 @@ contract('Crowdsale', (accounts) => {
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
       try {
         crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -122,6 +142,7 @@ contract('Crowdsale', (accounts) => {
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
       try {
         crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -135,6 +156,7 @@ contract('Crowdsale', (accounts) => {
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 0];
       try {
         crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -148,6 +170,7 @@ contract('Crowdsale', (accounts) => {
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 0];
       try {
         crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -371,6 +394,7 @@ contract('Crowdsale', (accounts) => {
       //  buy tokens
       try {
         await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
       }
@@ -394,6 +418,7 @@ contract('Crowdsale', (accounts) => {
       //  buy tokens
       try {
         await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
       }
@@ -417,6 +442,7 @@ contract('Crowdsale', (accounts) => {
       //  buy tokens
       try {
         await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
       }
@@ -440,6 +466,7 @@ contract('Crowdsale', (accounts) => {
       //  buy tokens
       try {
         await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
       }
@@ -463,6 +490,7 @@ contract('Crowdsale', (accounts) => {
       //  buy tokens
       try {
         await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
       }

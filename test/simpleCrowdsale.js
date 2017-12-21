@@ -64,8 +64,8 @@ contract('SimpleCrowdsale', (accounts) => {
     assert.equal(await simpleCrowdsale.admins(1), accounts[2], 'governance not added');
     assert.equal(await simpleCrowdsale.admins(2), accounts[3], 'governance not added');
 
-    await simpleCrowdsale.removeAdmin(accounts[2]);
     await simpleCrowdsale.removeAdmin(accounts[3]);
+    await simpleCrowdsale.removeAdmin(accounts[2]);
 
     try {
       await simpleCrowdsale.admins.call(1);
@@ -105,6 +105,7 @@ contract('SimpleCrowdsale', (accounts) => {
 
     try {
       await simpleCrowdsale.setContracts(tokenNew.address, multisigNew.address);
+      assert.fail('should have failed before');
     } catch (error) {
       assertJump(error);
     }
@@ -119,6 +120,7 @@ contract('SimpleCrowdsale', (accounts) => {
 
     try {
       await simpleCrowdsale.transferTokenOwnership(multisigNew.address);
+      assert.fail('should have failed before');
     } catch (error) {
       assertJump(error);
     }
@@ -135,6 +137,7 @@ contract('SimpleCrowdsale', (accounts) => {
 
     try {
       await simpleCrowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      assert.fail('should have failed before');
     } catch (error) {
       assertJump(error);
     }

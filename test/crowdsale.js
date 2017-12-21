@@ -71,6 +71,7 @@ contract('Crowdsale', (accounts) => {
       let crowdsaleNew;
       try {
         crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, '0x00');
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -84,6 +85,7 @@ contract('Crowdsale', (accounts) => {
       rates = [500, 400, 300, 200];
       try {
         crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -97,6 +99,7 @@ contract('Crowdsale', (accounts) => {
       rates = [500, 400, 300, 200, 100];
       try {
         crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -110,6 +113,7 @@ contract('Crowdsale', (accounts) => {
       rates = [500, 400, 300, 200, 0];
       try {
         crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -123,6 +127,7 @@ contract('Crowdsale', (accounts) => {
       rates = [500, 400, 300, 200, 0];
       try {
         crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -168,6 +173,7 @@ contract('Crowdsale', (accounts) => {
       // buy tokens
       try {
         await crowdsale.buyTokens('0x00', {value: MOCK_ONE_ETH, from: INVESTOR});
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -186,6 +192,7 @@ contract('Crowdsale', (accounts) => {
       // buy tokens
       try {
         await crowdsale.buyTokens('0x00', {value: 0, from: INVESTOR});
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -207,6 +214,7 @@ contract('Crowdsale', (accounts) => {
       // buy tokens
       try {
         await crowdsale.buyTokens('0x00', {value: MOCK_ONE_ETH, from: INVESTOR});
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
       }
@@ -222,12 +230,14 @@ contract('Crowdsale', (accounts) => {
     it('should allow not investors to buy tokens after endTime', async () => {
       const INVESTOR = accounts[4];
 
-      await increaseTime(ends[3] - startTime);
+      await increaseTime(ends[4] - startTime + 1);
 
       // buy tokens
       try {
         await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+        assert.fail('should have failed before');
       } catch(error) {
+        assertJump(error);
         const walletBalance = await web3.eth.getBalance(multisigWallet.address);
         const tokensBalance = await token.balanceOf.call(INVESTOR);
         assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
@@ -238,11 +248,14 @@ contract('Crowdsale', (accounts) => {
     it('should allow not allow forward funds if wallet payable consumes a lot of gas', async () => {
       const INVESTOR = accounts[4];
       const walletNew = await MockWallet.new();
-      const crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, walletNew.address)
+      const tokenNew = await Token.new();
+      const crowdsaleNew = await Crowdsale.new(startTime, ends, rates, tokenNew.address, walletNew.address)
+      await tokenNew.transferOwnership(crowdsaleNew.address);
 
       // buy tokens
       try {
-        await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+        await crowdsaleNew.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+        assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
         const walletBalance = await web3.eth.getBalance(multisigWallet.address);

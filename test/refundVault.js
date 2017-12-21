@@ -9,6 +9,7 @@ import mockEther from './helpers/mockEther'
 import EVMThrow from './helpers/EVMThrow'
 
 const RefundVault = artifacts.require('RefundVault')
+const MockWallet = artifacts.require('./mocks/MockWallet.sol');
 
 contract('RefundVault', function ([_, owner, wallet, investor]) {
 
@@ -47,6 +48,12 @@ contract('RefundVault', function ([_, owner, wallet, investor]) {
   it('only owner can close', async function () {
     await this.vault.close({from: _}).should.be.rejectedWith(EVMThrow)
     await this.vault.close({from: owner}).should.be.fulfilled
+  })
+
+  it('owner cant close when wallet payable consumes too much gas', async function () {
+    const walletNew = await MockWallet.new();
+    this.vault = await RefundVault.new(walletNew.address, {from: owner})
+    await this.vault.close({from: owner}).should.be.rejectedWith(EVMThrow)
   })
 
   it('should forward funds to wallet after closing', async function () {
