@@ -55,7 +55,8 @@ contract('RefundableCrowdsale', function ([_, owner, investor]) {
   it('should deny refunds after end if goal was reached', async function () {
     await increaseTimeTo(this.startTime)
     await this.crowdsale.sendTransaction({value: goal, from: investor})
-    await increaseTimeTo(this.ends[4])
+    await increaseTimeTo(this.ends[4] + 1)
+    await this.crowdsale.finalize({from: owner})
     await this.crowdsale.claimRefund({from: investor}).should.be.rejectedWith(EVMThrow)
   })
 

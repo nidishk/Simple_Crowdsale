@@ -118,7 +118,7 @@ contract('Crowdsale', (accounts) => {
 
     it('should not allow to start crowdsale if first cap time smaller than startTime',  async () => {
       let crowdsaleNew;
-      capTimes = [startTime - 100, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4];
+      capTimes = [startTime - 100, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
       try {
         crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);

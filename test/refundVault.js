@@ -63,6 +63,11 @@ contract('RefundVault', function ([_, owner, wallet, investor]) {
     await RefundVault.new('0x00', {from: owner}).should.be.rejectedWith(EVMThrow)
   })
 
+  it('should not allow to enableRefunds when state not active', async function () {
+    await this.vault.enableRefunds({from: owner}).should.be.fulfilled
+    await this.vault.enableRefunds({from: owner}).should.be.rejectedWith(EVMThrow)
+  })
+
   it('should not accept contributions when state not active', async function () {
     await this.vault.enableRefunds({from: owner}).should.be.fulfilled
     await this.vault.deposit(investor, {value, from: owner}).should.be.rejectedWith(EVMThrow)

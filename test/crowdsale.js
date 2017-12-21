@@ -1,4 +1,5 @@
 const Crowdsale = artifacts.require('./mocks/MockCrowdsale.sol');
+const MockWallet = artifacts.require('./mocks/MockWallet.sol');
 const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
@@ -227,6 +228,23 @@ contract('Crowdsale', (accounts) => {
       try {
         await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
       } catch(error) {
+        const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+        const tokensBalance = await token.balanceOf.call(INVESTOR);
+        assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
+        assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
+      }
+    });
+
+    it('should allow not allow forward funds if wallet payable consumes a lot of gas', async () => {
+      const INVESTOR = accounts[4];
+      const walletNew = await MockWallet.new();
+      const crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, walletNew.address)
+
+      // buy tokens
+      try {
+        await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      } catch(error) {
+        assertJump(error);
         const walletBalance = await web3.eth.getBalance(multisigWallet.address);
         const tokensBalance = await token.balanceOf.call(INVESTOR);
         assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');

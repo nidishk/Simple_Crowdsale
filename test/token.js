@@ -91,6 +91,66 @@ contract('Token', (accounts) => {
       }
     });
 
+    it('should not allow minting tokens when mintingFinished', async () => {
+
+      await token.finishMinting();
+      const BENEFICIARY = accounts[5];
+
+      try {
+        await token.mint(BENEFICIARY, MOCK_ONE_ETH * 1000);
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+        const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
+        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens transferred');
+      }
+    });
+
+    it('should not allow transfer tokens to self', async () => {
+
+      const INVESTOR = accounts[0];
+      const BENEFICIARY = accounts[5];
+      const swapRate = new BigNumber(256);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+
+      try {
+        await token.transfer(BENEFICIARY, tokensAmount, {from: BENEFICIARY});
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+      }
+    });
+
+    it('should not allow transfer tokens to address(0)', async () => {
+
+      const INVESTOR = accounts[0];
+      const BENEFICIARY = accounts[5];
+      const swapRate = new BigNumber(256);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+
+      try {
+        await token.transfer('0x00', tokensAmount, {from: BENEFICIARY});
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+      }
+    });
+
+    it('should not allow transfer tokens to with zero amount', async () => {
+
+      const INVESTOR = accounts[0];
+      const BENEFICIARY = accounts[5];
+      const swapRate = new BigNumber(256);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+
+      try {
+        await token.transfer(INVESTOR, 0, {from: BENEFICIARY});
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+      }
+    });
+
     it('should allow transferring to a ERC223 Receiver contract', async () => {
 
       const INVESTOR = accounts[0];
@@ -155,6 +215,22 @@ contract('Token', (accounts) => {
       try {
         await token.approve(BENEFICIARY, tokensAmount, {from: INVESTOR});
       } catch(error) {
+        const tokenBalanceAllowed = await token.allowance.call(INVESTOR, BENEFICIARY);
+        assert.equal(tokenBalanceAllowed.toNumber(), 0, 'tokens still allowed');
+      }
+    });
+
+    it('should not allow investors to approve tokens to self', async () => {
+
+      const INVESTOR = accounts[0];
+      const BENEFICIARY = accounts[5];
+      const swapRate = new BigNumber(256);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+
+      try {
+        await token.approve(BENEFICIARY, tokensAmount, {from: BENEFICIARY});
+      } catch(error) {
+        assertJump(error)
         const tokenBalanceAllowed = await token.allowance.call(INVESTOR, BENEFICIARY);
         assert.equal(tokenBalanceAllowed.toNumber(), 0, 'tokens still allowed');
       }
