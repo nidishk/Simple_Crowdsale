@@ -1,4 +1,4 @@
-const CappedCrowdsale = artifacts.require('./mocks/MockCappedCrowdsale.sol');
+const TokenCappedCrowdsale = artifacts.require('./mocks/MockTokenCappedCrowdsale.sol');
 const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
@@ -18,7 +18,7 @@ contract('Crowdsale', (accounts) => {
   let caps;
   let startTime;
   let multisigWallet;
-  let cappedCrowdsale;
+  let tokenCappedCrowdsale;
 
   beforeEach(async () => {
     await advanceBlock();
@@ -31,8 +31,8 @@ contract('Crowdsale', (accounts) => {
 
     token = await Token.new();
     multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-    cappedCrowdsale = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
-    await token.transferOwnership(cappedCrowdsale.address);
+    tokenCappedCrowdsale = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+    await token.transferOwnership(tokenCappedCrowdsale.address);
   });
 
   it('should not allow investors to buy when beneficiary is address(0)', async () => {
@@ -41,14 +41,14 @@ contract('Crowdsale', (accounts) => {
 
     //  buy tokens
     try {
-      await cappedCrowdsale.buyTokens('0x00', {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens('0x00', {value: amountEth, from: INVESTORS});
       assert.fail('should have failed before');
     } catch(error) {
       assertJump(error);
     }
     const walletBalance = await web3.eth.getBalance(multisigWallet.address);
     const balanceInvestor = await token.balanceOf.call(INVESTORS);
-    const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(0);
+    const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(0);
     const totalSupplyToken = await token.totalSupply.call();
 
     assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
@@ -62,7 +62,7 @@ contract('Crowdsale', (accounts) => {
 
     // buy tokens
     try {
-      await cappedCrowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      await tokenCappedCrowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
       assert.fail('should have failed before');
     } catch(error) {
       assertJump(error);
@@ -72,11 +72,11 @@ contract('Crowdsale', (accounts) => {
       assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
     }
   });
-  
-  describe('#cappedCrowdsaleDetails', () => {
-    it('should allow start cappedCrowdsale properly', async () => {
+
+  describe('#tokenCappedCrowdsaleDetails', () => {
+    it('should allow start tokenCappedCrowdsale properly', async () => {
     // checking startTimes
-    const startTimeSet = await cappedCrowdsale.startTime.call();
+    const startTimeSet = await tokenCappedCrowdsale.startTime.call();
     assert.equal(startTime, startTimeSet.toNumber(), 'startTime not set right');
 
     //checking initial token distribution details
@@ -84,13 +84,13 @@ contract('Crowdsale', (accounts) => {
     assert.equal(28350000e18, initialBalance.toNumber(), 'initialBalance for sale NOT distributed properly');
 
     //checking token and wallet address
-    const tokenAddress = await cappedCrowdsale.tokenAddr.call();
-    const walletAddress = await cappedCrowdsale.wallet.call();
+    const tokenAddress = await tokenCappedCrowdsale.tokenAddr.call();
+    const walletAddress = await tokenCappedCrowdsale.wallet.call();
     assert.equal(tokenAddress, token.address, 'address for token in contract not set');
     assert.equal(walletAddress, multisigWallet.address, 'address for multisig wallet in contract not set');
 
     // list caps and check
-    const softCap = await cappedCrowdsale.listCaps.call();
+    const softCap = await tokenCappedCrowdsale.listCaps.call();
     softCap[1].splice(caps.length);
     softCap[0].splice(caps.length);
 
@@ -113,7 +113,7 @@ contract('Crowdsale', (accounts) => {
     it('should not allow to start crowdsale if wallet address is address(0)',  async () => {
       let crowdsaleNew;
       try {
-        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, '0x00', capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, '0x00', capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -127,7 +127,7 @@ contract('Crowdsale', (accounts) => {
       capTimes = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
       try {
-        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -141,7 +141,7 @@ contract('Crowdsale', (accounts) => {
       capTimes = [startTime - 100, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
       try {
-        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -155,7 +155,7 @@ contract('Crowdsale', (accounts) => {
       capTimes = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 0];
       try {
-        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -169,7 +169,7 @@ contract('Crowdsale', (accounts) => {
       capTimes = [startTime + 86400, startTime + 86400*3, startTime + 86400*2, startTime + 86400*4, startTime + 86400*5];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 0];
       try {
-        crowdsaleNew = await CappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -183,7 +183,7 @@ contract('Crowdsale', (accounts) => {
   describe('#purchaseBelowCaps', () => {
 
     beforeEach(async () => {
-      await cappedCrowdsale.diluteCaps();
+      await tokenCappedCrowdsale.diluteCaps();
     });
 
     it('should allow investors to buy tokens just below softCap in the 1st phase', async () => {
@@ -192,10 +192,10 @@ contract('Crowdsale', (accounts) => {
       const tokensAmount = new BigNumber(rates[0]).mul(amountEth);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(0);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(0);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -211,10 +211,10 @@ contract('Crowdsale', (accounts) => {
       await increaseTime(capTimes[0] - startTime);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(1);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(1);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -230,10 +230,10 @@ contract('Crowdsale', (accounts) => {
       await increaseTime(capTimes[1] - startTime);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(2);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(2);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -249,10 +249,10 @@ contract('Crowdsale', (accounts) => {
       await increaseTime(capTimes[2] - startTime);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(3);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(3);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -268,10 +268,10 @@ contract('Crowdsale', (accounts) => {
       await increaseTime(capTimes[3] - startTime);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(4);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(4);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -283,7 +283,7 @@ contract('Crowdsale', (accounts) => {
   describe('#purchaseCaps', () => {
 
     beforeEach(async () => {
-      await cappedCrowdsale.diluteCaps();
+      await tokenCappedCrowdsale.diluteCaps();
     });
 
     it('should allow investors to buy tokens just equal to softCap in the 1st phase', async () => {
@@ -292,10 +292,10 @@ contract('Crowdsale', (accounts) => {
       const tokensAmount = new BigNumber(rates[0]).mul(amountEth);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(0);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(0);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -311,10 +311,10 @@ contract('Crowdsale', (accounts) => {
       await increaseTime(capTimes[0] - startTime);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(1);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(1);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -330,10 +330,10 @@ contract('Crowdsale', (accounts) => {
       await increaseTime(capTimes[1] - startTime);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(2);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(2);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -349,10 +349,10 @@ contract('Crowdsale', (accounts) => {
       await increaseTime(capTimes[2] - startTime);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(3);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(3);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -368,10 +368,10 @@ contract('Crowdsale', (accounts) => {
       await increaseTime(capTimes[3] - startTime);
 
       //  buy tokens
-      await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+      await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(4);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(4);
       const totalSupplyToken = await token.totalSupply.call();
 
       assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
@@ -383,7 +383,7 @@ contract('Crowdsale', (accounts) => {
   describe('#purchaseOverCaps', () => {
 
     beforeEach(async () => {
-      await cappedCrowdsale.diluteCaps();
+      await tokenCappedCrowdsale.diluteCaps();
     });
 
     it('should not allow investors to buy tokens above softCap in the 1st phase', async () => {
@@ -393,7 +393,7 @@ contract('Crowdsale', (accounts) => {
 
       //  buy tokens
       try {
-        await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
         assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
@@ -401,7 +401,7 @@ contract('Crowdsale', (accounts) => {
 
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(0);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(0);
       const totalSupplyToken = await token.totalSupply.call();
       assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
       assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
@@ -417,7 +417,7 @@ contract('Crowdsale', (accounts) => {
 
       //  buy tokens
       try {
-        await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
         assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
@@ -425,7 +425,7 @@ contract('Crowdsale', (accounts) => {
 
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(1);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(1);
       const totalSupplyToken = await token.totalSupply.call();
       assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
       assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
@@ -441,7 +441,7 @@ contract('Crowdsale', (accounts) => {
 
       //  buy tokens
       try {
-        await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
         assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
@@ -449,7 +449,7 @@ contract('Crowdsale', (accounts) => {
 
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(2);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(2);
       const totalSupplyToken = await token.totalSupply.call();
       assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
       assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
@@ -465,7 +465,7 @@ contract('Crowdsale', (accounts) => {
 
       //  buy tokens
       try {
-        await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
         assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
@@ -473,7 +473,7 @@ contract('Crowdsale', (accounts) => {
 
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(3);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(3);
       const totalSupplyToken = await token.totalSupply.call();
       assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
       assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
@@ -489,7 +489,7 @@ contract('Crowdsale', (accounts) => {
 
       //  buy tokens
       try {
-        await cappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
+        await tokenCappedCrowdsale.buyTokens(INVESTORS, {value: amountEth, from: INVESTORS});
         assert.fail('should have failed before');
       } catch (error) {
         assertJump(error);
@@ -497,7 +497,7 @@ contract('Crowdsale', (accounts) => {
 
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
-      const totalSupplyPhase1 = await cappedCrowdsale.milestoneTotalSupply.call(4);
+      const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(4);
       const totalSupplyToken = await token.totalSupply.call();
       assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
       assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
