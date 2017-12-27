@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "../../contracts/crowdsale/Crowdsale.sol";
+import "../../contracts/crowdsale/multistage/MultiStageCrowdsale.sol";
 
 
 /**
@@ -14,11 +14,11 @@ import "../../contracts/crowdsale/Crowdsale.sol";
  * After adding multiple features it's good practice to run integration tests
  * to ensure that subcontracts works together as intended.
  */
-contract MockCrowdsale is Crowdsale {
+contract MockMultiStageCrowdsale is MultiStageCrowdsale {
 
 
-  function MockCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet)
-    Crowdsale(_startTime, _ends, _swapRate, _tokenAddr, _wallet)
+  function MockMultiStageCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet)
+    MultiStageCrowdsale(_startTime, _ends, _swapRate, _tokenAddr, _wallet)
   {
 
   }
