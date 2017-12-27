@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "../crowdsale/TokenCappedCrowdsale.sol";
+import "../crowdsale/multistage/TokenCappedCrowdsale.sol";
 import "../crowdsale/PausableCrowdsale.sol";
 
 

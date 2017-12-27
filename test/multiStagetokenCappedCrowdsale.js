@@ -1,4 +1,4 @@
-const TokenCappedCrowdsale = artifacts.require('./mocks/MockTokenCappedCrowdsale.sol');
+const TokenCappedCrowdsale = artifacts.require('./mocks/MockMultiStageTokenCappedCrowdsale.sol');
 const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
@@ -10,7 +10,7 @@ const ONE_ETH = web3.toWei(1, 'ether');
 const MOCK_ONE_ETH = web3.toWei(0.000001, 'ether'); // diluted ether value for testing
 const FOUNDERS = [web3.eth.accounts[1], web3.eth.accounts[2], web3.eth.accounts[3]];
 
-contract('Crowdsale', (accounts) => {
+contract('MultiStageTokenCappedCrowdsale', (accounts) => {
   let token;
   let ends;
   let rates;

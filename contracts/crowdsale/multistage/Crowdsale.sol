@@ -4,14 +4,14 @@ import '../../token/Token.sol';
 import '../../SafeMath.sol';
 
 /**
- * @title MultiStageCrowdsale
- * @dev MultiStageCrowdsale is a base contract for managing a token crowdsale.
- * MultiStageCrowdsales have a start and end timestamps, where investors can make
+ * @title Crowdsale
+ * @dev Crowdsale is a base contract for managing a token crowdsale.
+ * Crowdsales have a start and end timestamps, where investors can make
  * token purchases and the crowdsale will assign them tokens based
  * on a token per ETH rate. Funds collected are forwarded to a wallet
  * as they arrive.
  */
-contract MultiStageCrowdsale {
+contract Crowdsale {
   using SafeMath for uint256;
 
   struct Rate {
@@ -43,7 +43,7 @@ contract MultiStageCrowdsale {
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-  function MultiStageCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet) public {
+  function Crowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet) public {
     require(_wallet != address(0));
     require(_ends.length == _swapRate.length);
     require(_ends[0] > _startTime);
@@ -72,7 +72,7 @@ contract MultiStageCrowdsale {
   }
 
   // fallback function can be used to buy tokens
-  function () payable {
+  function () external payable {
     buyTokens(msg.sender);
   }
 

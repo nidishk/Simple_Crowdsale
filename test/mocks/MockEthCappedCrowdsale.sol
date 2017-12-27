@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "../../contracts/crowdsale/EthCappedCrowdsale.sol";
+import "../../contracts/crowdsale/singlestage/EthCappedCrowdsale.sol";
 
 
 /**
@@ -17,8 +17,8 @@ import "../../contracts/crowdsale/EthCappedCrowdsale.sol";
 contract MockEthCappedCrowdsale is EthCappedCrowdsale {
 
 
-  function MockEthCappedCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet, uint256 _hardCap)
-    Crowdsale(_startTime, _ends, _swapRate, _tokenAddr, _wallet)
+  function MockEthCappedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _tokenAddr, address _wallet, uint256 _hardCap)
+    Crowdsale(_startTime, _endTime, _rate, _tokenAddr, _wallet)
     EthCappedCrowdsale(_hardCap)
   {
 

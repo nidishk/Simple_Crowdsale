@@ -27,11 +27,11 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
 
   beforeEach(async function () {
     this.startTime = latestTime() + duration.weeks(1)
-    this.ends = [this.startTime + 86400, this.startTime + 86400*2, this.startTime + 86400*3, this.startTime + 86400*4, this.startTime + 86400*5];
-    this.rates = [500, 400, 300, 200, 100];
+    this.endTime = this.startTime + 86400*5;
+    this.rate = 500;
     this.multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
     this.token = await Token.new();
-    this.crowdsale = await FinalizableCrowdsale.new(this.startTime, this.ends, this.rates, this.token.address, this.multisigWallet.address, {from: owner})
+    this.crowdsale = await FinalizableCrowdsale.new(this.startTime, this.endTime, this.rate, this.token.address, this.multisigWallet.address, {from: owner})
     await this.token.transferOwnership(this.crowdsale.address);
 
   })
@@ -41,23 +41,23 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   })
 
   it('cannot be finalized by third party after ending', async function () {
-    await increaseTimeTo(this.ends[4] + 1)
+    await increaseTimeTo(this.endTime + 1)
     await this.crowdsale.finalize({from: thirdparty}).should.be.rejectedWith(EVMThrow)
   })
 
   it('can be finalized by owner after ending', async function () {
-    await increaseTimeTo(this.ends[4] + 1)
+    await increaseTimeTo(this.endTime + 1)
     await this.crowdsale.finalize({from: owner}).should.be.fulfilled
   })
 
   it('cannot be finalized twice', async function () {
-    await increaseTimeTo(this.ends[4] + 1)
+    await increaseTimeTo(this.endTime + 1)
     await this.crowdsale.finalize({from: owner})
     await this.crowdsale.finalize({from: owner}).should.be.rejectedWith(EVMThrow)
   })
 
   it('logs finalized', async function () {
-    await increaseTimeTo(this.ends[4] + 1)
+    await increaseTimeTo(this.endTime + 1)
     const {logs} = await this.crowdsale.finalize({from: owner})
     const event = logs.find(e => e.event === 'Finalized')
     should.exist(event)

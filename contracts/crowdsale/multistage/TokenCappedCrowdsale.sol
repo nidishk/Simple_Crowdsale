@@ -1,12 +1,12 @@
 pragma solidity ^0.4.11;
 
-import './MultiStageCrowdsale.sol';
+import './Crowdsale.sol';
 
 /**
  * @title CappedCrowdsale
  * @dev Extension of Crowdsale with a max amount of funds raised
  */
-contract MultiStageTokenCappedCrowdsale is MultiStageCrowdsale {
+contract TokenCappedCrowdsale is Crowdsale {
 
   struct SoftCap {
     uint256 end;
@@ -16,7 +16,7 @@ contract MultiStageTokenCappedCrowdsale is MultiStageCrowdsale {
   SoftCap[15] public softCap;
   uint256[15] public milestoneTotalSupply;
 
-  function MultiStageTokenCappedCrowdsale(uint256[] _capTimes, uint256[] _cap) public {
+  function TokenCappedCrowdsale(uint256[] _capTimes, uint256[] _cap) public {
     require(_capTimes.length == _cap.length);
     require(_capTimes[0] > startTime);
 

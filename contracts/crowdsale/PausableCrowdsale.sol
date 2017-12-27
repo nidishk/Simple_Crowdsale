@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 import '../Pausable.sol';
-import './Crowdsale.sol';
+import './multistage/Crowdsale.sol';
 
 /**
  * @title FinalizableCrowdsale

@@ -1,6 +1,5 @@
 pragma solidity ^0.4.11;
 
-
 import './FinalizableCrowdsale.sol';
 import './RefundVault.sol';
 

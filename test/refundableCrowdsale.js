@@ -30,18 +30,18 @@ contract('RefundableCrowdsale', function ([_, owner, investor]) {
 
   beforeEach(async function () {
     this.startTime = latestTime() + duration.weeks(1)
-    this.ends = [this.startTime + 86400, this.startTime + 86400*2, this.startTime + 86400*3, this.startTime + 86400*4, this.startTime + 86400*5];
-    this.rates = [500, 400, 300, 200, 100];
+    this.endTime = this.startTime + 86400*5;
+    this.rate = 500;
     this.multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
     this.token = await Token.new();
-    this.crowdsale = await RefundableCrowdsale.new(this.startTime, this.ends, this.rates, this.token.address, this.multisigWallet.address, goal, {from: owner})
+    this.crowdsale = await RefundableCrowdsale.new(this.startTime, this.endTime, this.rate, this.token.address, this.multisigWallet.address, goal, {from: owner})
     await this.token.transferOwnership(this.crowdsale.address);
   })
 
   describe('creating a valid crowdsale', function () {
 
     it('should fail with zero goal', async function () {
-      await RefundableCrowdsale.new(this.startTime, this.ends, this.rates, this.token.address, this.multisigWallet.address, 0, {from: owner}).should.be.rejectedWith(EVMThrow);
+      await RefundableCrowdsale.new(this.startTime, this.endTime, this.rate, this.token.address, this.multisigWallet.address, 0, {from: owner}).should.be.rejectedWith(EVMThrow);
     })
 
   });
@@ -55,7 +55,7 @@ contract('RefundableCrowdsale', function ([_, owner, investor]) {
   it('should deny refunds after end if goal was reached', async function () {
     await increaseTimeTo(this.startTime)
     await this.crowdsale.sendTransaction({value: goal, from: investor})
-    await increaseTimeTo(this.ends[4] + 1)
+    await increaseTimeTo(this.endTime + 1)
     await this.crowdsale.finalize({from: owner})
     await this.crowdsale.claimRefund({from: investor}).should.be.rejectedWith(EVMThrow)
   })
@@ -63,7 +63,7 @@ contract('RefundableCrowdsale', function ([_, owner, investor]) {
   it('should allow refunds after end if goal was not reached', async function () {
     await increaseTimeTo(this.startTime)
     await this.crowdsale.sendTransaction({value: lessThanGoal, from: investor})
-    await increaseTimeTo(this.ends[4] + 1)
+    await increaseTimeTo(this.endTime + 1)
 
     await this.crowdsale.finalize({from: owner})
 
@@ -78,7 +78,7 @@ contract('RefundableCrowdsale', function ([_, owner, investor]) {
   it('should forward funds to wallet after end if goal was reached', async function () {
     await increaseTimeTo(this.startTime)
     await this.crowdsale.sendTransaction({value: goal, from: investor})
-    await increaseTimeTo(this.ends[4] + 1)
+    await increaseTimeTo(this.endTime + 1)
 
     const pre = web3.eth.getBalance(this.multisigWallet.address)
     await this.crowdsale.finalize({from: owner})
