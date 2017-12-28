@@ -25,4 +25,12 @@ contract('WhiteList', function ([_, owner, wallet, investor]) {
     await this.list.removeWhiteListed(investor, {from: owner}).should.be.fulfilled
   })
 
+  it('should not allow same whiteListing twice', async function () {
+    await this.list.addWhiteListed(investor, {from: owner}).should.be.fulfilled
+    await this.list.addWhiteListed(investor, {from: owner}).should.be.rejectedWith(EVMThrow)
+  })
+
+  it('should not allow to remove non existant whiteListee', async function () {
+    await this.list.removeWhiteListed(investor, {from: owner}).should.be.rejectedWith(EVMThrow)
+  })
 })
