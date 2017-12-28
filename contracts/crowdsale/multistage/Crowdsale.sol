@@ -4,11 +4,10 @@ import '../CrowdsaleBase.sol';
 
 /**
  * @title Crowdsale
- * @dev Crowdsale is a base contract for managing a token crowdsale.
- * Crowdsales have a start and end timestamps, where investors can make
- * token purchases and the crowdsale will assign them tokens based
- * on a token per ETH rate. Funds collected are forwarded to a wallet
- * as they arrive.
+ * @dev Crowdsale is a  contract for managing a token crowdsale with multiple rates.
+ * The end times for each of the swap rates must be put in epoch format in an array
+ * along with the corresponding swapRates. The last term in ends[] must be the endTime
+ * of the crowdsale
  */
 contract Crowdsale is CrowdsaleBase {
 

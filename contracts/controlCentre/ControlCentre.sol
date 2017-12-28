@@ -3,7 +3,12 @@ pragma solidity ^0.4.11;
 import "./ControlCentreInterface.sol";
 import "../ownership/Ownable.sol";
 
-
+/**
+ * @title ControlCentre
+ * @dev ControlCentre is a contract for managing operations with multiple transactions.
+ * For each operation to take place the control centre must be in the admin list
+ * of the crowdsale in position 1 and is removed after each transaction.
+ */
 contract ControlCentre is Ownable {
 
   modifier hasRight(address _crowdsaleAddress) {

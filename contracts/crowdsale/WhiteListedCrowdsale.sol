@@ -3,12 +3,17 @@ pragma solidity ^0.4.11;
 import './WhiteList.sol';
 import './singlestage/Crowdsale.sol';
 
+/**
+ * @title WhiteListedCrowdsale
+ * @dev Extension of Crowdsale where only White Listed addresses can
+ * buy Tokens.
+ */
 contract WhiteListedCrowdsale is Crowdsale {
 
   address public whitelistAddr;
 
-  modifier onlyWhiteListed() {
-    require(WhiteList(whitelistAddr).isWhiteListed(msg.sender));
+  modifier onlyWhiteListed(address _beneficiary) {
+    require(WhiteList(whitelistAddr).isWhiteListed(msg.sender) && _beneficiary == msg.sender);
     _;
   }
 
@@ -17,7 +22,7 @@ contract WhiteListedCrowdsale is Crowdsale {
   }
 
   // low level token purchase function
-  function buyTokens(address beneficiary) public onlyWhiteListed payable {
+  function buyTokens(address beneficiary) public onlyWhiteListed(beneficiary) payable {
     super.buyTokens(beneficiary);
   }
 }

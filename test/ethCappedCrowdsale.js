@@ -10,7 +10,7 @@ const ONE_ETH = web3.toWei(1, 'ether');
 const MOCK_ONE_ETH = web3.toWei(0.000001, 'ether'); // diluted ether value for testing
 const FOUNDERS = [web3.eth.accounts[1], web3.eth.accounts[2], web3.eth.accounts[3]];
 
-contract('Crowdsale', (accounts) => {
+contract('EthCappedCrowdsale', (accounts) => {
   let token;
   let endTime;
   let rate;
@@ -141,7 +141,7 @@ contract('Crowdsale', (accounts) => {
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
       const totalSupplyTokenAfter = await token.totalSupply.call();
-  
+
       assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
       assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
       assert.equal(totalSupplyTokenAfter.sub(totalSupplyTokenBefore).toNumber(), 0, 'balance not added to totalSupply');

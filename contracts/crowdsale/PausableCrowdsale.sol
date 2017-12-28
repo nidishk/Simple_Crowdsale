@@ -4,9 +4,9 @@ import '../Pausable.sol';
 import './multistage/Crowdsale.sol';
 
 /**
- * @title FinalizableCrowdsale
- * @dev Extension of Crowdsale where an owner can do extra work
- * after finishing.
+ * @title PausableCrowdsale
+ * @dev Extension of Crowdsale where an owner can pause the crowdsale
+ * at any time.
  */
 contract PausableCrowdsale is Crowdsale, Pausable {
 

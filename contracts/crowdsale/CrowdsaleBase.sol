@@ -3,6 +3,12 @@ pragma solidity ^0.4.11;
 import '../SafeMath.sol';
 import '../token/Token.sol';
 
+/**
+ * @title Crowdsale
+ * @dev CrowdsaleBase is a base contract for managing a token crowdsale.
+ * All crowdsales contracts must inherit this contract.
+ */
+
 contract CrowdsaleBase {
   using SafeMath for uint256;
 

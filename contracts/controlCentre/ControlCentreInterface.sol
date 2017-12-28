@@ -1,5 +1,10 @@
 pragma solidity ^0.4.11;
 
+/**
+ * @title ControlCentreInterface
+ * @dev ControlCentreInterface is an interface for providing commonly used function
+ * signatures to the ControlCentre
+ */
 contract ControlCentreInterface {
 
   bool public paused;

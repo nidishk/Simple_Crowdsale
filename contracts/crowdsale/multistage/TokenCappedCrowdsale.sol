@@ -3,8 +3,9 @@ pragma solidity ^0.4.11;
 import './Crowdsale.sol';
 
 /**
- * @title CappedCrowdsale
- * @dev Extension of Crowdsale with a max amount of funds raised
+ * @title TokenCappedCrowdsale
+ * @dev Extension of Crowdsale with a max amount of tokens to be bought
+ * in different stages, similar to multi stage crowdsale
  */
 contract TokenCappedCrowdsale is Crowdsale {
 

@@ -3,7 +3,7 @@ pragma solidity ^0.4.11;
 import './Crowdsale.sol';
 
 /**
- * @title CappedCrowdsale
+ * @title EthCappedCrowdsale
  * @dev Extension of Crowdsale with a max amount of funds raised
  */
 contract EthCappedCrowdsale is Crowdsale {
