@@ -30,22 +30,9 @@ contract TokenCappedCrowdsale is Crowdsale {
 
   // low level token purchase function
   function buyTokens(address beneficiary) public payable {
-    require(beneficiary != address(0));
-    require(validPurchase());
-
-    uint256 weiAmount = msg.value;
-    // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(currentRate());
     uint8 currentPhase = phase();
-    require(setSupply(currentPhase, milestoneTotalSupply[currentPhase].add(tokens)));
-
-    // update state
-    weiRaised = weiRaised.add(weiAmount);
-
-    Token(tokenAddr).mint(beneficiary, tokens);
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
-
-    forwardFunds();
+    uint256 tokens = _buyTokens(beneficiary, currentRate());
+    if(!setSupply(currentPhase, milestoneTotalSupply[currentPhase].add(tokens))) revert();
   }
 
   function phase() internal constant returns (uint8) {

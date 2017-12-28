@@ -1,6 +1,5 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.11;
 
-import '../../SafeMath.sol';
 import './Crowdsale.sol';
 
 /**
@@ -8,20 +7,24 @@ import './Crowdsale.sol';
  * @dev Extension of Crowdsale with a max amount of funds raised
  */
 contract TokenCappedCrowdsale is Crowdsale {
-  using SafeMath for uint256;
 
-  uint256 public cap;
+  uint256 public tokenCap;
+  uint256 public totalSupply;
 
-  function TokenCappedCrowdsale(uint256 _cap) public {
-    require(_cap > 0);
-    cap = _cap;
+  function TokenCappedCrowdsale(uint256 _tokenCap) public {
+      require(_tokenCap > 0);
+      tokenCap = _tokenCap;
   }
 
-  // overriding Crowdsale#validPurchase to add extra cap logic
-  // @return true if investors can buy at the moment
-  function validPurchase() internal constant returns (bool) {
-    bool withinCap = weiRaised.add(msg.value) <= cap;
-    return super.validPurchase() && withinCap;
+  // low level token purchase function
+  function buyTokens(address beneficiary) public payable {
+    uint256 tokens = _buyTokens(beneficiary, rate);
+    if(!setSupply(totalSupply.add(tokens))) revert();
+  }
+
+  function setSupply(uint256 newSupply) internal constant returns (bool) {
+    totalSupply = newSupply;
+    return tokenCap >= totalSupply;
   }
 
 }

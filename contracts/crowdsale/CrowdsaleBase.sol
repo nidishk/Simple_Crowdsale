@@ -48,14 +48,14 @@ contract CrowdsaleBase {
   }
 
   // low level token purchase function
-  function _buyTokens(address beneficiary, uint256 rate) internal {
+  function _buyTokens(address beneficiary, uint256 rate) internal returns (uint256 tokens) {
     require(beneficiary != address(0));
     require(validPurchase());
 
     uint256 weiAmount = msg.value;
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    tokens = weiAmount.mul(rate);
 
     // update state
     weiRaised = weiRaised.add(weiAmount);
