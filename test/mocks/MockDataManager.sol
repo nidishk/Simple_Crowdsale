@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import '../../contracts/token/DataManager.sol';
+import '../../contracts/token/base/DataManager.sol';
 
 contract MockDataManager is DataManager{
 

@@ -1,6 +1,6 @@
 const Crowdsale = artifacts.require('./mocks/MockMultiStageCrowdsale.sol');
 const MockWallet = artifacts.require('./mocks/MockWallet.sol');
-const Token = artifacts.require('./token/Token.sol');
+const Token = artifacts.require('./helpers/MockPausedToken.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
 import latestTime from './helpers/latestTime';

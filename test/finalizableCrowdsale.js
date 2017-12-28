@@ -11,7 +11,7 @@ const should = require('chai')
   .should()
 
 const FinalizableCrowdsale = artifacts.require('./helpers/FinalizableCrowdsaleImpl.sol')
-const Token = artifacts.require('./token/Token.sol');
+const Token = artifacts.require('./helpers/MockPausedToken.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 
 contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {

@@ -1,8 +1,8 @@
 pragma solidity ^0.4.11;
 
-import '../SafeMath.sol';
-import '../ERC20.sol';
-import '../ERC223ReceivingContract.sol';
+import '../../SafeMath.sol';
+import '../../ERC20.sol';
+import '../../ERC223ReceivingContract.sol';
 import './DataManager.sol';
 
 contract SimpleControl is ERC20, DataManager {
@@ -14,8 +14,8 @@ contract SimpleControl is ERC20, DataManager {
   event Mint(address indexed to, uint256 amount);
   event MintToggle(bool status);
 
-  modifier canMint() {
-    require(!mintingFinished);
+  modifier canMint(bool status) {
+    require(!mintingFinished == status);
     _;
   }
 
@@ -24,18 +24,18 @@ contract SimpleControl is ERC20, DataManager {
   }
 
   // public functions
-  function approve(address _spender, uint256 _value) public whenNotPaused returns (bool) {
+  function approve(address _spender, uint256 _value) public returns (bool) {
     require(msg.sender != _spender);
     _setAllowance(msg.sender, _spender, _value);
     return true;
   }
 
-  function transfer(address _to, uint256 _value) whenNotPaused public returns (bool) {
+  function transfer(address _to, uint256 _value) public returns (bool) {
     bytes memory empty;
     return transfer(_to, _value, empty);
   }
 
-  function transfer(address to, uint value, bytes data) whenNotPaused public returns (bool) {
+  function transfer(address to, uint value, bytes data) public returns (bool) {
     _transfer(msg.sender, to, value, data);
     return true;
   }
@@ -46,13 +46,13 @@ contract SimpleControl is ERC20, DataManager {
   }
 
 
-  function transferFrom(address _from, address _to, uint256 _amount, bytes _data) whenNotPaused public returns (bool) {
+  function transferFrom(address _from, address _to, uint256 _amount, bytes _data) public returns (bool) {
     _setAllowance(_from, _to, allowance(_from, _to).sub(_amount));
     _transfer(_from, _to, _amount, _data);
     return true;
   }
 
-  function mint(address _to, uint256 _amount) whenNotPaused onlyOwner canMint public returns (bool) {
+  function mint(address _to, uint256 _amount) onlyOwner canMint(true) public returns (bool) {
     bytes memory empty;
     _setTotalSupply(totalSupply().add(_amount));
     _setBalanceOf(_to, balanceOf(_to).add(_amount));
@@ -62,13 +62,13 @@ contract SimpleControl is ERC20, DataManager {
     return true;
   }
 
-  function startMinting() whenNotPaused onlyOwner public returns (bool) {
+  function startMinting() onlyOwner public returns (bool) {
     mintingFinished = false;
     MintToggle(mintingFinished);
     return true;
   }
 
-  function finishMinting() whenNotPaused onlyOwner public returns (bool) {
+  function finishMinting() onlyOwner public returns (bool) {
     mintingFinished = true;
     MintToggle(mintingFinished);
     return true;

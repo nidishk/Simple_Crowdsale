@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 import "./DataCentre.sol";
-import '../PausableToken.sol';
+import '../../PausableToken.sol';
 
 contract DataManager is PausableToken {
 

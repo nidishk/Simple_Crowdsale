@@ -1,6 +1,6 @@
 const SimpleCrowdsale = artifacts.require('./helpers/MockSimpleCrowdsale.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
-const Token = artifacts.require('./token/Token.sol');
+const Token = artifacts.require('./helpers/MockPausedToken.sol');
 const ERC223Receiver = artifacts.require('./helpers/ERC223ReceiverMock.sol');
 const DataCentre = artifacts.require('./token/DataCentre.sol');
 import {advanceBlock} from './helpers/advanceToBlock';

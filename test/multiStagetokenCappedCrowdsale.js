@@ -1,5 +1,5 @@
 const TokenCappedCrowdsale = artifacts.require('./mocks/MockMultiStageTokenCappedCrowdsale.sol');
-const Token = artifacts.require('./token/Token.sol');
+const Token = artifacts.require('./helpers/MockPausedToken.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
 import latestTime from './helpers/latestTime';

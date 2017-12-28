@@ -12,7 +12,7 @@ require('chai')
   .should()
 
 const RefundableCrowdsale = artifacts.require('./helpers/RefundableCrowdsaleImpl.sol')
-const Token = artifacts.require('./token/Token.sol');
+const Token = artifacts.require('./helpers/MockPausedToken.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 
 contract('RefundableCrowdsale', function ([_, owner, investor]) {

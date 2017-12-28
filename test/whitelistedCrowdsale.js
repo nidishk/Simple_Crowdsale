@@ -13,7 +13,7 @@ const should = require('chai')
 
 const WhiteListedCrowdsale = artifacts.require('./helpers/WhiteListedCrowdsaleImpl.sol')
 const WhiteList = artifacts.require('./crowdsale/WhiteList.sol')
-const Token = artifacts.require('./token/Token.sol')
+const Token = artifacts.require('./helpers/MockPausedToken.sol')
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol')
 
 contract('WhiteListedCrowdsale', function ([_, owner, wallet, thirdparty]) {
