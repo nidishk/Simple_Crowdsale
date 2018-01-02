@@ -14,8 +14,8 @@ contract Crowdsale is CrowdsaleBase {
 
   uint256 public rate;
 
-  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _tokenAddr, address _wallet) public
-    CrowdsaleBase(_startTime, _tokenAddr, _wallet)
+  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address _controller) public
+    CrowdsaleBase(_startTime, _wallet, _controller)
   {
     require(_endTime >= _startTime);
     require(_rate > 0);

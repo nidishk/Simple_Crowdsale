@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 import '../SafeMath.sol';
-import '../token/base/Token.sol';
+import '../controller/ControllerInterface.sol';
 
 /**
  * @title Crowdsale
@@ -12,7 +12,7 @@ import '../token/base/Token.sol';
 contract CrowdsaleBase {
   using SafeMath for uint256;
 
-  address public tokenAddr;
+  address public controller;
   uint256 public startTime;
   address public wallet;
   uint256 public weiRaised;
@@ -20,10 +20,10 @@ contract CrowdsaleBase {
 
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-  function CrowdsaleBase(uint256 _startTime, address _tokenAddr, address _wallet) public {
+  function CrowdsaleBase(uint256 _startTime, address _wallet, address _controller) public {
     require(_wallet != address(0));
 
-    tokenAddr = _tokenAddr;
+    controller = _controller;
     startTime = _startTime;
     wallet = _wallet;
   }
@@ -66,7 +66,7 @@ contract CrowdsaleBase {
     // update state
     weiRaised = weiRaised.add(weiAmount);
 
-    Token(tokenAddr).mint(beneficiary, tokens);
+    ControllerInterface(controller).mint(beneficiary, tokens);
     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
     forwardFunds();

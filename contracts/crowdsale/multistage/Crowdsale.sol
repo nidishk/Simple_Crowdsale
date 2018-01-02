@@ -19,8 +19,8 @@ contract Crowdsale is CrowdsaleBase {
   // how many token units a buyer gets per wei
   Rate[15] internal rate;
 
-  function Crowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet) public
-    CrowdsaleBase(_startTime, _tokenAddr, _wallet)
+  function Crowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address _controller) public
+    CrowdsaleBase(_startTime, _wallet, _controller)
   {
     require(_ends.length == _swapRate.length);
     require(_ends[0] > _startTime);
