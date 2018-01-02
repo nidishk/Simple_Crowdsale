@@ -1,6 +1,7 @@
+const Controller = artifacts.require('./controller/Controller.sol');
 const Crowdsale = artifacts.require('./mocks/MockMultiStageCrowdsale.sol');
 const MockWallet = artifacts.require('./mocks/MockWallet.sol');
-const Token = artifacts.require('./helpers/MockPausedToken.sol');
+const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
 import latestTime from './helpers/latestTime';
@@ -18,6 +19,7 @@ contract('MultiStageCrowdsale', (accounts) => {
   let startTime;
   let multisigWallet;
   let crowdsale;
+  let controller;
 
   beforeEach(async () => {
     await advanceBlock();
@@ -26,8 +28,11 @@ contract('MultiStageCrowdsale', (accounts) => {
     rates = [500, 400, 300, 200, 100];
     token = await Token.new();
     multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-    crowdsale = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
-    await token.transferOwnership(crowdsale.address);
+    controller = await Controller.new(token.address, '0x00')
+    crowdsale = await Crowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address);
+    await controller.addAdmin(crowdsale.address);
+    await token.transferOwnership(controller.address);
+    await controller.unpause();
   });
 
   describe('#crowdsaleDetails', () => {
@@ -41,7 +46,7 @@ contract('MultiStageCrowdsale', (accounts) => {
     assert.equal(28350000e18, initialBalance.toNumber(), 'initialBalance for sale NOT distributed properly');
 
     //checking token and wallet address
-    const tokenAddress = await crowdsale.tokenAddr.call();
+    const tokenAddress = await controller.satellite.call();
     const walletAddress = await crowdsale.wallet.call();
     assert.equal(tokenAddress, token.address, 'address for token in contract not set');
     assert.equal(walletAddress, multisigWallet.address, 'address for multisig wallet in contract not set');
@@ -70,7 +75,7 @@ contract('MultiStageCrowdsale', (accounts) => {
     it('should not allow to start crowdsale if wallet address is address(0)',  async () => {
       let crowdsaleNew;
       try {
-        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, '0x00');
+        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, '0x00', controller.address);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -84,7 +89,7 @@ contract('MultiStageCrowdsale', (accounts) => {
       ends = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
       rates = [500, 400, 300, 200];
       try {
-        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, token.address, multisigWallet.address);
+        crowdsaleNew = await Crowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);

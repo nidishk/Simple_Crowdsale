@@ -1,5 +1,6 @@
+const Controller = artifacts.require('./controller/Controller.sol');
 const TokenCappedCrowdsale = artifacts.require('./mocks/MockTokenCappedCrowdsale.sol');
-const Token = artifacts.require('./helpers/MockPausedToken.sol');
+const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
 import latestTime from './helpers/latestTime';
@@ -19,6 +20,7 @@ contract('TokenCappedCrowdsale', (accounts) => {
   let startTime;
   let multisigWallet;
   let tokenCappedCrowdsale;
+  let controller;
 
   beforeEach(async () => {
     await advanceBlock();
@@ -29,8 +31,11 @@ contract('TokenCappedCrowdsale', (accounts) => {
 
     token = await Token.new();
     multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-    tokenCappedCrowdsale = await TokenCappedCrowdsale.new(startTime, endTime, rate, token.address, multisigWallet.address, tokenCap);
-    await token.transferOwnership(tokenCappedCrowdsale.address);
+    controller = await Controller.new(token.address, '0x00')
+    tokenCappedCrowdsale = await TokenCappedCrowdsale.new(startTime, endTime, rate, multisigWallet.address, controller.address, tokenCap);
+    await controller.addAdmin(tokenCappedCrowdsale.address);
+    await token.transferOwnership(controller.address);
+    await controller.unpause();
   });
 
   it('should allow not investors to buy tokens after endTime', async () => {
@@ -61,7 +66,7 @@ contract('TokenCappedCrowdsale', (accounts) => {
     assert.equal(28350000e18, initialBalance.toNumber(), 'initialBalance for sale NOT distributed properly');
 
     //checking token and wallet address
-    const tokenAddress = await tokenCappedCrowdsale.tokenAddr.call();
+    const tokenAddress = await controller.satellite.call();
     const walletAddress = await tokenCappedCrowdsale.wallet.call();
     assert.equal(tokenAddress, token.address, 'address for token in contract not set');
     assert.equal(walletAddress, multisigWallet.address, 'address for multisig wallet in contract not set');

@@ -17,8 +17,8 @@ import "../../contracts/crowdsale/multistage/TokenCappedCrowdsale.sol";
 contract MockMultiStageTokenCappedCrowdsale is TokenCappedCrowdsale {
 
 
-  function MockMultiStageTokenCappedCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet, uint256[] _capTimes, uint256[] _cap)
-    Crowdsale(_startTime, _ends, _swapRate, _tokenAddr, _wallet)
+  function MockMultiStageTokenCappedCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet,  address controller, uint256[] _capTimes, uint256[] _cap)
+    Crowdsale(_startTime, _ends, _swapRate, _wallet, controller)
     TokenCappedCrowdsale(_capTimes, _cap)
   {
 

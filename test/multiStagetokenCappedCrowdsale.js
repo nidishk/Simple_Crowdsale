@@ -1,5 +1,6 @@
+const Controller = artifacts.require('./controller/Controller.sol');
 const TokenCappedCrowdsale = artifacts.require('./mocks/MockMultiStageTokenCappedCrowdsale.sol');
-const Token = artifacts.require('./helpers/MockPausedToken.sol');
+const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
 import latestTime from './helpers/latestTime';
@@ -19,6 +20,7 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
   let startTime;
   let multisigWallet;
   let tokenCappedCrowdsale;
+  let controller;
 
   beforeEach(async () => {
     await advanceBlock();
@@ -31,8 +33,11 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
 
     token = await Token.new();
     multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-    tokenCappedCrowdsale = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
-    await token.transferOwnership(tokenCappedCrowdsale.address);
+    controller = await Controller.new(token.address, '0x00')
+    tokenCappedCrowdsale = await TokenCappedCrowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address, capTimes, caps);
+    await controller.addAdmin(tokenCappedCrowdsale.address);
+    await token.transferOwnership(controller.address);
+    await controller.unpause();
   });
 
   it('should not allow investors to buy when beneficiary is address(0)', async () => {
@@ -84,7 +89,7 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
     assert.equal(28350000e18, initialBalance.toNumber(), 'initialBalance for sale NOT distributed properly');
 
     //checking token and wallet address
-    const tokenAddress = await tokenCappedCrowdsale.tokenAddr.call();
+    const tokenAddress = await controller.satellite.call();
     const walletAddress = await tokenCappedCrowdsale.wallet.call();
     assert.equal(tokenAddress, token.address, 'address for token in contract not set');
     assert.equal(walletAddress, multisigWallet.address, 'address for multisig wallet in contract not set');
@@ -113,7 +118,7 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
     it('should not allow to start crowdsale if wallet address is address(0)',  async () => {
       let crowdsaleNew;
       try {
-        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, '0x00', capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, '0x00', controller.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -127,7 +132,7 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       capTimes = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
       try {
-        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -141,7 +146,7 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       capTimes = [startTime - 100, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
       try {
-        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -155,7 +160,7 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       capTimes = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 0];
       try {
-        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -169,7 +174,7 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       capTimes = [startTime + 86400, startTime + 86400*3, startTime + 86400*2, startTime + 86400*4, startTime + 86400*5];
       caps = [900000e18, 900000e18, 900000e18, 900000e18, 0];
       try {
-        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
+        crowdsaleNew = await TokenCappedCrowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address, capTimes, caps);
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);

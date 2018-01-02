@@ -1,8 +1,8 @@
 pragma solidity ^0.4.11;
 
-import '../../contracts/token/base/DataManager.sol';
+import '../../contracts/controller/DataManager.sol';
 
-contract MockDataManager is DataManager{
+contract MockDataManager is DataManager {
 
   function MockDataManager(address _dataCentreAddr)
     DataManager(_dataCentreAddr)
@@ -18,11 +18,11 @@ contract MockDataManager is DataManager{
     return DataCentre(dataCentreAddr).getAddress('STK', 'Address(this)');
   }
 
-  function setState(bool _state) public onlyOwner {
+  function setState(bool _state) public onlyAdmins {
     _setState(_state);
   }
 
-  function setOwner(address _owner) public onlyOwner {
+  function setOwner(address _owner) public onlyAdmins {
     _setOwner(_owner);
   }
 

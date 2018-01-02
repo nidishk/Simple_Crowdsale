@@ -11,8 +11,9 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should()
 
+const Controller = artifacts.require('./controller/Controller.sol');
 const RefundableCrowdsale = artifacts.require('./helpers/RefundableCrowdsaleImpl.sol')
-const Token = artifacts.require('./helpers/MockPausedToken.sol');
+const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 
 contract('RefundableCrowdsale', function ([_, owner, investor]) {
@@ -34,8 +35,11 @@ contract('RefundableCrowdsale', function ([_, owner, investor]) {
     this.rate = 500;
     this.multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
     this.token = await Token.new();
-    this.crowdsale = await RefundableCrowdsale.new(this.startTime, this.endTime, this.rate, this.token.address, this.multisigWallet.address, goal, {from: owner})
-    await this.token.transferOwnership(this.crowdsale.address);
+    this.controller = await Controller.new(this.token.address, '0x00')
+    this.crowdsale = await RefundableCrowdsale.new(this.startTime, this.endTime, this.rate, this.multisigWallet.address, this.controller.address, goal, {from: owner})
+    await this.controller.addAdmin(this.crowdsale.address);
+    await this.token.transferOwnership(this.controller.address);
+    await this.controller.unpause();
   })
 
   describe('creating a valid crowdsale', function () {

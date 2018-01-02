@@ -1,6 +1,7 @@
+const Controller = artifacts.require('./controller/Controller.sol');
 const Crowdsale = artifacts.require('./crowdsale/singlestage/Crowdsale.sol');
 const MockWallet = artifacts.require('./mocks/MockWallet.sol');
-const Token = artifacts.require('./helpers/MockPausedToken.sol');
+const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
 import latestTime from './helpers/latestTime';
@@ -18,6 +19,7 @@ contract('Crowdsale', (accounts) => {
   let startTime;
   let multisigWallet;
   let crowdsale;
+  let controller;
 
   beforeEach(async () => {
     await advanceBlock();
@@ -26,8 +28,11 @@ contract('Crowdsale', (accounts) => {
     rate = 500;
     token = await Token.new();
     multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-    crowdsale = await Crowdsale.new(startTime, endTime, rate, token.address, multisigWallet.address);
-    await token.transferOwnership(crowdsale.address);
+    controller = await Controller.new(token.address, '0x00')
+    crowdsale = await Crowdsale.new(startTime, endTime, rate, multisigWallet.address, controller.address);
+    await controller.addAdmin(crowdsale.address);
+    await token.transferOwnership(controller.address);
+    await controller.unpause();
   });
 
   describe('#crowdsaleDetails', () => {
@@ -41,7 +46,7 @@ contract('Crowdsale', (accounts) => {
     assert.equal(28350000e18, initialBalance.toNumber(), 'initialBalance for sale NOT distributed properly');
 
     //checking token and wallet address
-    const tokenAddress = await crowdsale.tokenAddr.call();
+    const tokenAddress = await controller.satellite.call();
     const walletAddress = await crowdsale.wallet.call();
     assert.equal(tokenAddress, token.address, 'address for token in contract not set');
     assert.equal(walletAddress, multisigWallet.address, 'address for multisig wallet in contract not set');

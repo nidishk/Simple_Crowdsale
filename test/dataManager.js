@@ -28,14 +28,4 @@ contract('DataManager', (accounts) => {
     assert.equal(owner, accounts[0]);
   });
 
-  it('should allow owner to set DataCentre address', async () => {
-
-    const dataCentreNew = await DataCentre.new();
-    await dataManager.pause();
-    await dataManager.setDataCentreAddress(dataCentreNew.address);
-    const dataCentreAddr = await dataManager.dataCentreAddr.call();
-
-    assert.equal(dataCentreAddr, dataCentreNew.address);
-  });
-
 })

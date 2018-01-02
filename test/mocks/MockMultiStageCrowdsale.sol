@@ -17,8 +17,8 @@ import "../../contracts/crowdsale/multistage/Crowdsale.sol";
 contract MockMultiStageCrowdsale is Crowdsale {
 
 
-  function MockMultiStageCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet)
-    Crowdsale(_startTime, _ends, _swapRate, _tokenAddr, _wallet)
+  function MockMultiStageCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address controller)
+    Crowdsale(_startTime, _ends, _swapRate, _wallet, controller)
   {
 
   }

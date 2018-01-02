@@ -17,8 +17,8 @@ import "../../contracts/crowdsale/singlestage/EthCappedCrowdsale.sol";
 contract MockEthCappedCrowdsale is EthCappedCrowdsale {
 
 
-  function MockEthCappedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _tokenAddr, address _wallet, uint256 _hardCap)
-    Crowdsale(_startTime, _endTime, _rate, _tokenAddr, _wallet)
+  function MockEthCappedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address _controller, uint256 _hardCap)
+    Crowdsale(_startTime, _endTime, _rate, _wallet, _controller)
     EthCappedCrowdsale(_hardCap)
   {
 
