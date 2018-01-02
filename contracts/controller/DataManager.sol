@@ -1,24 +1,15 @@
 pragma solidity ^0.4.11;
 
-import "./DataCentre.sol";
-import '../../PausableToken.sol';
+import '../token/base/DataCentre.sol';
+import '../Pausable.sol';
 
-contract DataManager is PausableToken {
+contract DataManager is Pausable {
 
   // satelite contract addresses
   address public dataCentreAddr;
 
   function DataManager(address _dataCentreAddr) {
     dataCentreAddr = _dataCentreAddr == address(0) ? address(createDataCentre()) : _dataCentreAddr;
-  }
-
-  // Owner Functions
-  function setDataCentreAddress(address _dataCentreAddr) public onlyOwner whenPaused {
-    dataCentreAddr = _dataCentreAddr;
-  }
-
-  function transferDataCentreOwnership(address _nextOwner) public onlyOwner whenPaused {
-    DataCentre(dataCentreAddr).transferOwnership(_nextOwner);
   }
 
   // Constant Functions
