@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "../../ownership/Ownable.sol";
+import "../ownership/Ownable.sol";
 
 contract DataCentre is Ownable {
     struct Container {

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import '../token/base/DataCentre.sol';
+import '../token/DataCentre.sol';
 import '../Pausable.sol';
 
 contract DataManager is Pausable {

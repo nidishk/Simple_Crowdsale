@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 import './SimpleControl.sol';
-import '../token/base/Token.sol';
+import '../token/Token.sol';
 
 contract CrowdsaleControl is SimpleControl {
   using SafeMath for uint;

@@ -17,16 +17,16 @@ import "../../contracts/example/SimpleCrowdsale.sol";
 contract MockSimpleCrowdsale is SimpleCrowdsale {
 
 
-  function MockSimpleCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _tokenAddr, address _wallet, uint256[] _capTimes, uint256[] _cap)
-    SimpleCrowdsale(_startTime, _ends, _swapRate, _tokenAddr, _wallet, _capTimes, _cap)
+  function MockSimpleCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address controller, uint256 _cap, uint256 _goal)
+    SimpleCrowdsale(_startTime, _endTime, _rate, _wallet, controller, _cap, _goal)
   {
 
   }
 
   function diluteCaps() public {
     // diluting all caps by 10^6 for testing
-    for(uint8 i = 0; i < softCap.length; i++) {
-      softCap[i].cap = softCap[i].cap.div(1e6);
-    }
+    tokenCap = tokenCap.div(1e6);
+    goal = goal.div(1e6);
+
   }
 }
