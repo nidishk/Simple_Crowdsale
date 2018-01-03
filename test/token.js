@@ -304,56 +304,68 @@ contract('Token', (accounts) => {
     });
   });
 
-  // describe('#upgradability', () => {
-  //   let multisigWallet;
-  //   let startTime;
-  //   let ends;
-  //   let rates;
-  //   let capTimes;
-  //   let caps;
-  //   let simpleCrowdsale;
-  //
-  //   beforeEach(async () => {
-  //     await advanceBlock();
-  //     startTime = latestTime();
-  //     capTimes = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
-  //     rates = [500, 400, 300, 200, 100];
-  //
-  //     ends = [startTime + 86400, startTime + 86400*2, startTime + 86400*3, startTime + 86400*4, startTime + 86400*5];
-  //     caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
-  //     multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-  //     simpleCrowdsale = await SimpleCrowdsale.new(startTime, ends, rates, token.address, multisigWallet.address, capTimes, caps);
-  //     await token.transferOwnership(simpleCrowdsale.address);
-  //   });
-    //
-    // it('should allow to upgrade token contract manually', async () => {
-    //
-    //   const swapRate = new BigNumber(rates[0]);
-    //   const INVESTOR = accounts[4];
-    //   const BENEFICIARY = accounts[5];
-    //   // buy tokens
-    //   await simpleCrowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
-    //   const tokensBalance = await token.balanceOf.call(INVESTOR);
-    //   const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
-    //   assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
-    //
-    //   // // begin the upgrade process
-    //   await simpleCrowdsale.pause();
-    //   await simpleCrowdsale.transferTokenOwnership(accounts[0]);
-    //   await token.pause();
-    //   await token.transferDataCentreOwnership(accounts[0]);
-    //
-    //   // deploy new token contract
-    //   const dataCentre = await DataCentre.at(await token.dataCentreAddr());
-    //   const tokenNew = await Token.new(dataCentre.address);
-    //   await dataCentre.transferOwnership(tokenNew.address);
-    //   const dataCentreSet = await tokenNew.dataCentreAddr.call();
-    //   assert.equal(dataCentreSet, dataCentre.address, 'dataCentre not set');
-    //
-    //
-    //   // try a transfer operation in the new token contract
-    //   await tokenNew.transfer(BENEFICIARY, tokensBalance, {from: INVESTOR});
-    //   const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-    //   assert.equal(tokensBalance.toNumber(), tokenBalanceTransfered.toNumber(), 'tokens not transferred');
-    // });
+  describe('#upgradability', () => {
+    let multisigWallet;
+    let startTime;
+    let ends;
+    let rates;
+    let capTimes;
+    let caps;
+    let goal;
+    let simpleCrowdsale;
+    let controller;
+
+    beforeEach(async () => {
+      await advanceBlock();
+      startTime = latestTime();
+      rates = 500
+      ends = startTime + 86400*5;
+      caps = 900000e18;
+      goal = 180000e18;
+
+      token = await Token.new();
+      multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
+      controller = await Controller.new(token.address, '0x00')
+      simpleCrowdsale = await SimpleCrowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address, caps, goal);
+      await controller.addAdmin(simpleCrowdsale.address);
+      await token.transferOwnership(controller.address);
+      await controller.unpause();
+    });
+
+    it('should allow to upgrade controller contract manually', async () => {
+
+      const swapRate = new BigNumber(rates);
+      const INVESTOR = accounts[4];
+      const BENEFICIARY = accounts[5];
+      // buy tokens
+      await simpleCrowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+      assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
+
+      const dataCentreAddr = await controller.dataCentreAddr.call();
+      const dataCentre = await DataCentre.at(dataCentreAddr);
+      // begin the upgrade process
+
+      const controllerNew = await Controller.new(token.address, dataCentreAddr);
+      await controller.pause();
+
+      // transfer satellite and dataCentre
+      await controller.kill(controllerNew.address);
+
+      await token.transferOwnership(controllerNew.address);
+      await dataCentre.transferOwnership(controllerNew.address);
+
+      assert.equal(await controllerNew.satellite.call(), token.address, "Token address not set in controller");
+      assert.equal(await controllerNew.dataCentreAddr.call(), dataCentreAddr, "Data Centre address not set in controller");
+      assert.equal(await token.owner.call(), controllerNew.address, "Token ownership not transferred to controller");
+      assert.equal(await dataCentre.owner.call(), controllerNew.address, "DataCentre ownership not transferred to controller");
+
+      await controllerNew.unpause();
+
+      const tokensBalance1 = await token.balanceOf.call(INVESTOR);
+      const tokensAmount1 = swapRate.mul(MOCK_ONE_ETH);
+      assert.equal(tokensBalance1.toNumber(), tokensAmount1.toNumber(), 'tokens not deposited into the INVESTOR balance');
+    });
+  });
 })
