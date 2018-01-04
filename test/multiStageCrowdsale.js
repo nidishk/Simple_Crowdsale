@@ -1,5 +1,6 @@
 const Controller = artifacts.require('./controller/Controller.sol');
 const Crowdsale = artifacts.require('./mocks/MockMultiStageCrowdsale.sol');
+const CrowdsaleTokenMilestones = artifacts.require('./mocks/MockMultiStageCrowdsale.sol');
 const MockWallet = artifacts.require('./mocks/MockWallet.sol');
 const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
@@ -276,7 +277,7 @@ contract('MultiStageCrowdsale', (accounts) => {
     });
   });
 
-  describe('#purchase', () => {
+  describe('#purchaseTimeMilestones', () => {
     it('should allow investors to buy tokens at the 1st swapRate', async () => {
       const INVESTOR = accounts[4];
 
@@ -374,6 +375,101 @@ contract('MultiStageCrowdsale', (accounts) => {
       const tokensBalance = await token.balanceOf.call(INVESTOR);
 
       assert.equal(walletBalance.toNumber(), 5 * MOCK_ONE_ETH, 'ether not deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
+    });
+  });
+
+  describe('#purchaseTokenMilestones', () => {
+
+    beforeEach(async () => {
+      await advanceBlock();
+      startTime = latestTime();
+      ends = [250e18, 490e18, 720e18, 960e18, 1070e18];
+      rates = [125, 120, 115, 110, 105];
+      crowdsale = await CrowdsaleTokenMilestones.new(startTime, ends, rates, multisigWallet.address, controller.address);
+      await crowdsale.diluteMilestones();
+    });
+
+    it('should allow investors to buy tokens at the 1st swapRate', async () => {
+      const INVESTOR = accounts[4];
+
+      // buy tokens
+      await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rates[0]);
+      assert.equal(walletBalance.toNumber(), MOCK_ONE_ETH, 'ether not deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
+    });
+
+    it('should allow investors to buy tokens at the 2nd swapRate', async () => {
+      const INVESTOR = accounts[4];
+      const BIGBUYER = accounts[5];
+
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+      // buy tokens
+      await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rates[1]);
+      assert.equal(walletBalance.toNumber(), MOCK_ONE_ETH, 'ether not deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
+    });
+
+    it('should allow investors to buy tokens at the 3rd swapRate', async () => {
+      const INVESTOR = accounts[4];
+      const BIGBUYER = accounts[5];
+
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+
+      // buy tokens
+      await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rates[2]);
+      assert.equal(walletBalance.toNumber(), MOCK_ONE_ETH, 'ether not deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
+    });
+
+    it('should allow investors to buy tokens at the 4th swapRate', async () => {
+      const INVESTOR = accounts[4];
+      const BIGBUYER = accounts[5];
+
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+
+      // buy tokens
+      await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rates[3]);
+      assert.equal(walletBalance.toNumber(), MOCK_ONE_ETH, 'ether not deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
+    });
+
+    it('should allow investors to buy tokens at the 5th swapRate', async () => {
+      const INVESTOR = accounts[4];
+      const BIGBUYER = accounts[5];
+
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+      await crowdsale.buyTokens(INVESTOR, {value: 2 * MOCK_ONE_ETH, from: INVESTOR});
+
+      // buy tokens
+      await crowdsale.buyTokens(INVESTOR, {value: MOCK_ONE_ETH, from: INVESTOR});
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rates[4]);
+      assert.equal(walletBalance.toNumber(), MOCK_ONE_ETH, 'ether not deposited into the wallet');
       assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
     });
   });

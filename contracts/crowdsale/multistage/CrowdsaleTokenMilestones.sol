@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 import '../CrowdsaleBase.sol';
-import './RateLogic/TimeMilestones.sol';
+import './RateLogic/TokenMilestones.sol';
 
 /**
  * @title Crowdsale
@@ -10,9 +10,9 @@ import './RateLogic/TimeMilestones.sol';
  * along with the corresponding swapRates. The last term in ends[] must be the endTime
  * of the crowdsale
  */
-contract Crowdsale is CrowdsaleBase, TimeMilestones {
+contract CrowdsaleTokenMilestones is CrowdsaleBase, TokenMilestones {
 
-  function Crowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address _controller) public
+  function CrowdsaleTokenMilestones(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address _controller) public
     CrowdsaleBase(_startTime, _wallet, _controller)
   {
     require(_ends.length == _swapRate.length);
