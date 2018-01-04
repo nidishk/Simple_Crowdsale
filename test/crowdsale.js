@@ -104,5 +104,20 @@ contract('Crowdsale', (accounts) => {
       assert.equal(walletBalance.toNumber(), MOCK_ONE_ETH, 'ether not deposited into the wallet');
       assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
     });
+
+    it('should allow investors to buy tokens by sending ether to crowdsale contract', async () => {
+      const INVESTOR = accounts[4];
+      const INVESTOR2 = accounts[5];
+
+      // buy tokens
+      await crowdsale.buyTokens(INVESTOR2, {value: MOCK_ONE_ETH, from: INVESTOR});
+      await web3.eth.sendTransaction({from: INVESTOR, to: crowdsale.address, value: MOCK_ONE_ETH});
+      const walletBalance = await web3.eth.getBalance(multisigWallet.address);
+      const tokensBalance = await token.balanceOf.call(INVESTOR);
+
+      const tokensAmount = new BigNumber(MOCK_ONE_ETH).mul(rate);
+      assert.equal(walletBalance.toNumber(), 2 * MOCK_ONE_ETH, 'ether not deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), tokensAmount.toNumber(), 'tokens not deposited into the INVESTOR balance');
+    });
   });
 });
