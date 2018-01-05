@@ -21,9 +21,12 @@ contract('Token', (accounts) => {
     await advanceBlock();
     const startTime = latestTime();
     token = await Token.new();
-    controller = await Controller.new(token.address, '0x00')
+    dataCentre = await DataCentre.new();
+    controller = await Controller.new(token.address, dataCentre.address)
     await token.transferOwnership(controller.address);
+    await dataCentre.transferOwnership(controller.address);
     await controller.unpause();
+    await controller.mint(accounts[0], 2850000e18);
   });
 
   // only needed because of the refactor
@@ -42,21 +45,6 @@ contract('Token', (accounts) => {
       assert.equal(tokensAmount.toNumber(), tokenBalanceTransfered.toNumber(), 'tokens not transferred');
     });
 
-    it('should allow investors to transfer only after minting finished', async () => {
-
-      const INVESTOR = accounts[0];
-      const BENEFICIARY = accounts[5];
-      const swapRate = new BigNumber(256);
-      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
-
-      try {
-        await token.transfer(BENEFICIARY, tokensAmount, {from: INVESTOR});
-      } catch (error) {
-        assertJump(error);
-      }
-      const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-      assert.equal(0, tokenBalanceTransfered.toNumber(), 'tokens not transferred');
-    });
   });
 
   describe('#transferFrom', () => {

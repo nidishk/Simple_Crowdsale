@@ -2,6 +2,7 @@ const Controller = artifacts.require('./controller/Controller.sol');
 const EthCappedCrowdsale = artifacts.require('./mocks/MockEthCappedCrowdsale.sol');
 const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
+const DataCentre = artifacts.require('./token/DataCentre.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
 import latestTime from './helpers/latestTime';
 import increaseTime from './helpers/increaseTime';
@@ -13,6 +14,7 @@ const FOUNDERS = [web3.eth.accounts[1], web3.eth.accounts[2], web3.eth.accounts[
 
 contract('EthCappedCrowdsale', (accounts) => {
   let token;
+  let dataCentre;
   let endTime;
   let rate;
   let hardCap;
@@ -28,12 +30,15 @@ contract('EthCappedCrowdsale', (accounts) => {
     rate = 500;
     hardCap = 90000e18;
     token = await Token.new();
+    dataCentre = await DataCentre.new();
     multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-    controller = await Controller.new(token.address, '0x00')
+    controller = await Controller.new(token.address, dataCentre.address)
     ethCappedCrowdsale = await EthCappedCrowdsale.new(startTime, endTime, rate, multisigWallet.address, controller.address, hardCap);
     await controller.addAdmin(ethCappedCrowdsale.address);
     await token.transferOwnership(controller.address);
+    await dataCentre.transferOwnership(controller.address);
     await controller.unpause();
+    await controller.mint(accounts[0], 28350000e18);
   });
 
   describe('#ethCappedCrowdsaleDetails', () => {

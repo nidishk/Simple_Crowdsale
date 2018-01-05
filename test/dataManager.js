@@ -7,9 +7,12 @@ const MOCK_ONE_ETH = web3.toWei(0.000001, 'ether'); // diluted ether value for t
 
 contract('DataManager', (accounts) => {
   let dataManager;
+  let dataCentre;
 
   beforeEach(async () => {
-    dataManager = await DataManager.new();
+    dataCentre = await DataCentre.new();
+    dataManager = await DataManager.new(dataCentre.address);
+    await dataCentre.transferOwnership(dataManager.address);
   });
 
   it('should allow owner to setState', async () => {

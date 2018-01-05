@@ -12,6 +12,7 @@ const should = require('chai')
   .should()
 
 const Controller = artifacts.require('./controller/Controller.sol');
+const DataCentre = artifacts.require('./token/DataCentre.sol');
 const WhiteListedCrowdsale = artifacts.require('./helpers/WhiteListedCrowdsaleImpl.sol')
 const WhiteList = artifacts.require('./crowdsale/WhiteList.sol')
 const Token = artifacts.require('./token/Token.sol');
@@ -35,11 +36,13 @@ contract('WhiteListedCrowdsale', function ([_, owner, wallet, thirdparty]) {
     this.rate = 500;
     this.multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
     this.token = await Token.new();
+    this.dataCentre = await DataCentre.new();
+    this.controller = await Controller.new(this.token.address, this.dataCentre.address)
     this.list = await WhiteList.new({from: owner})
-    this.controller = await Controller.new(this.token.address, '0x00')
     this.crowdsale = await WhiteListedCrowdsale.new(this.startTime, this.endTime, this.rate, this.multisigWallet.address, this.controller.address, this.list.address, {from: owner})
     await this.controller.addAdmin(this.crowdsale.address);
     await this.token.transferOwnership(this.controller.address);
+    await this.dataCentre.transferOwnership(this.controller.address);
     await this.controller.unpause();
 
   })

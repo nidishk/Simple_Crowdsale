@@ -22,9 +22,12 @@ contract('Token', (accounts) => {
     await advanceBlock();
     const startTime = latestTime();
     token = await Token.new();
-    controller = await Controller.new(token.address, '0x00')
+    dataCentre = await DataCentre.new();
+    controller = await Controller.new(token.address, dataCentre.address)
     await token.transferOwnership(controller.address);
+    await dataCentre.transferOwnership(controller.address);
     await controller.unpause();
+    await controller.mint(accounts[0], 2835000e18);
   });
 
   // only needed because of the refactor
@@ -306,6 +309,7 @@ contract('Token', (accounts) => {
 
   describe('#upgradability', () => {
     let multisigWallet;
+    let dataCentre;
     let startTime;
     let ends;
     let rates;
@@ -324,11 +328,13 @@ contract('Token', (accounts) => {
       goal = 180000e18;
 
       token = await Token.new();
+      dataCentre = await DataCentre.new();
       multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-      controller = await Controller.new(token.address, '0x00')
+      controller = await Controller.new(token.address, dataCentre.address)
       simpleCrowdsale = await SimpleCrowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address, caps, goal);
       await controller.addAdmin(simpleCrowdsale.address);
       await token.transferOwnership(controller.address);
+      await dataCentre.transferOwnership(controller.address);
       await controller.unpause();
     });
 

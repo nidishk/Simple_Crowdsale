@@ -13,6 +13,7 @@ const should = require('chai')
 const Controller = artifacts.require('./controller/Controller.sol');
 const FinalizableCrowdsale = artifacts.require('./helpers/FinalizableCrowdsaleImpl.sol')
 const Token = artifacts.require('./token/Token.sol');
+const DataCentre = artifacts.require('./token/DataCentre.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
 
 contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
@@ -32,10 +33,12 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
     this.rate = 500;
     this.multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
     this.token = await Token.new();
-    this.controller = await Controller.new(this.token.address, '0x00')
+    this.dataCentre = await DataCentre.new();
+    this.controller = await Controller.new(this.token.address, this.dataCentre.address)
     this.crowdsale = await FinalizableCrowdsale.new(this.startTime, this.endTime, this.rate, this.multisigWallet.address, this.controller.address,  {from: owner})
     await this.controller.addAdmin(this.crowdsale.address);
     await this.token.transferOwnership(this.controller.address);
+    await this.dataCentre.transferOwnership(this.controller.address);
     await this.controller.unpause();
   })
 

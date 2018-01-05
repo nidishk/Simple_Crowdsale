@@ -2,6 +2,7 @@ const Controller = artifacts.require('./controller/Controller.sol');
 const TokenCappedCrowdsale = artifacts.require('./mocks/MockMultiStageTokenCappedCrowdsale.sol');
 const Token = artifacts.require('./token/Token.sol');
 const MultisigWallet = artifacts.require('./multisig/solidity/MultiSigWalletWithDailyLimit.sol');
+const DataCentre = artifacts.require('./token/DataCentre.sol');
 import {advanceBlock} from './helpers/advanceToBlock';
 import latestTime from './helpers/latestTime';
 import increaseTime from './helpers/increaseTime';
@@ -13,6 +14,7 @@ const FOUNDERS = [web3.eth.accounts[1], web3.eth.accounts[2], web3.eth.accounts[
 
 contract('MultiStageTokenCappedCrowdsale', (accounts) => {
   let token;
+  let dataCentre;
   let ends;
   let rates;
   let capTimes;
@@ -32,12 +34,15 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
     caps = [900000e18, 900000e18, 900000e18, 900000e18, 900000e18];
 
     token = await Token.new();
+    dataCentre = await DataCentre.new();
     multisigWallet = await MultisigWallet.new(FOUNDERS, 3, 10*MOCK_ONE_ETH);
-    controller = await Controller.new(token.address, '0x00')
+    controller = await Controller.new(token.address, dataCentre.address)
     tokenCappedCrowdsale = await TokenCappedCrowdsale.new(startTime, ends, rates, multisigWallet.address, controller.address, capTimes, caps);
     await controller.addAdmin(tokenCappedCrowdsale.address);
     await token.transferOwnership(controller.address);
+    await dataCentre.transferOwnership(controller.address);
     await controller.unpause();
+    await controller.mint(accounts[0], 28350000e18);
   });
 
   it('should not allow investors to buy when beneficiary is address(0)', async () => {
