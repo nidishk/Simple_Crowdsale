@@ -30,7 +30,6 @@ contract DataCentre is Ownable {
         containers[_container].balances[_key] = _value;
     }
 
-
     function setConstraint(bytes32 _container, address _source, address _key, uint256 _value) onlyOwner {
         containers[_container].constraints[_source][_key] = _value;
     }

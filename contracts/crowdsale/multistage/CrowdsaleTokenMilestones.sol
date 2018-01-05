@@ -12,24 +12,30 @@ import './RateLogic/TokenMilestones.sol';
  */
 contract CrowdsaleTokenMilestones is CrowdsaleBase, TokenMilestones {
 
-  function CrowdsaleTokenMilestones(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address _controller) public
+  function CrowdsaleTokenMilestones(uint256 _startTime, uint256 _endTime, uint256[] _tokenEnds, uint256[] _swapRate, address _wallet, address _controller) public
     CrowdsaleBase(_startTime, _wallet, _controller)
   {
-    require(_ends.length == _swapRate.length);
-    require(_ends[0] > _startTime);
+    require(_tokenEnds.length == _swapRate.length);
+    require(_tokenEnds[0] > _startTime);
 
-    endTime = _ends[_ends.length - 1];
+    endTime = _endTime;
 
-    for(uint8 i = 0; i < _ends.length; i++) {
+    for(uint8 i = 0; i < _tokenEnds.length; i++) {
       require(_swapRate[i] > 0);
-      if (i != 0) require(_ends[i] > _ends[i-1]);
-      rate[i].end = _ends[i];
+      if (i != 0) require(_tokenEnds[i] > _tokenEnds[i-1]);
+      rate[i].end = _tokenEnds[i];
       rate[i].swapRate = _swapRate[i];
     }
   }
 
   // low level tokenAddr purchase function
   function buyTokens(address beneficiary) public payable {
-    _buyTokens(beneficiary, currentRate());
+    uint256 tokens = _buyTokens(beneficiary, currentRate());
+    setSupply(0, totalSupply.add(tokens));
+  }
+
+  function setSupply(uint8 currentPhase, uint256 newSupply) internal constant returns (bool) {
+    totalSupply = newSupply;
+    return true;
   }
 }

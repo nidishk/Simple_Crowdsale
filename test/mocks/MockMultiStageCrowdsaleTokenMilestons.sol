@@ -17,8 +17,8 @@ import "../../contracts/crowdsale/multistage/CrowdsaleTokenMilestones.sol";
 contract MockMultiStageCrowdsaleTokenMilestons is CrowdsaleTokenMilestones {
 
 
-  function MockMultiStageCrowdsaleTokenMilestons(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address controller)
-    CrowdsaleTokenMilestones(_startTime, _ends, _swapRate, _wallet, controller)
+  function MockMultiStageCrowdsaleTokenMilestons(uint256 _startTime, uint256 _endTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address controller)
+    CrowdsaleTokenMilestones(_startTime, _endTime, _ends, _swapRate, _wallet, controller)
   {
 
   }

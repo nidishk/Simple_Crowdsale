@@ -9,6 +9,8 @@ import '../../CrowdsaleBase.sol';
  */
 contract TokenMilestones is CrowdsaleBase {
 
+  uint public totalSupply;
+
   struct Rate {
     uint256 end;
     uint256 swapRate;
@@ -21,7 +23,8 @@ contract TokenMilestones is CrowdsaleBase {
     if(now < startTime) return  0;
 
     for(uint8 i = 0; i < rate.length; i++) {
-      if(ControllerInterface(controller).totalSupply() < rate[i].end) {
+
+      if(totalSupply < rate[i].end) {
         return rate[i].swapRate;
       }
     }
