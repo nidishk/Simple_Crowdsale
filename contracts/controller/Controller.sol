@@ -14,13 +14,7 @@ contract Controller is CrowdsaleControl {
   function Controller(address _satellite, address _dataCentreAddr)
     CrowdsaleControl(_satellite, _dataCentreAddr)
   {
-    if(_dataCentreAddr == address(0)) {
 
-    // initial token distribution to be put in here
-    uint256 initialSupply = Token(satellite).INITIAL_SUPPLY();
-    _setTotalSupply(initialSupply);
-    _setBalanceOf(msg.sender, initialSupply);
-    }
   }
 
   // Owner Functions
