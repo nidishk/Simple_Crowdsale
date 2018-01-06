@@ -27,6 +27,8 @@ contract Token is Ownable, ERC20 {
   }
 
   function mint(address _to, uint256 _amount) onlyOwner public returns (bool) {
+    bytes memory empty;
+    _checkDestination(address(this), _to, _amount, empty);
     Mint(_to, _amount);
     Transfer(address(0), _to, _amount);
     return true;

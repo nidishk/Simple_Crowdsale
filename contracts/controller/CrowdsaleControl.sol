@@ -22,7 +22,6 @@ contract CrowdsaleControl is SimpleControl {
 
 
   function mint(address _to, uint256 _amount) whenNotPaused canMint(true) onlyAdmins public returns (bool) {
-    bytes memory empty;
     _setTotalSupply(totalSupply().add(_amount));
     _setBalanceOf(_to, balanceOf(_to).add(_amount));
     Token(satellite).mint(_to, _amount);
