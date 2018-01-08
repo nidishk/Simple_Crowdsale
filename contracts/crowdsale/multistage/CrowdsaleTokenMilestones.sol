@@ -16,7 +16,7 @@ contract CrowdsaleTokenMilestones is CrowdsaleBase, TokenMilestones {
     CrowdsaleBase(_startTime, _wallet, _controller)
   {
     require(_tokenEnds.length == _swapRate.length);
-    require(_tokenEnds[0] > _startTime);
+    require(_endTime > _startTime);
 
     endTime = _endTime;
 

@@ -401,6 +401,36 @@ contract('MultiStageCrowdsale', (accounts) => {
 
   });
 
+  describe('#unsuccesfulInitialization', () => {
+    let endTime;
+
+    beforeEach(async () => {
+      await advanceBlock();
+      startTime = latestTime() + 40000;
+      endTime = startTime + 86400;
+      ends = [250e18, 490e18, 720e18, 940e18, 1150e18];
+      rates = [125, 120, 115, 110, 105];
+      await controller.removeAdmin(crowdsale.address);
+      crowdsale = await CrowdsaleTokenMilestones.new(startTime, endTime, ends, rates, multisigWallet.address, controller.address);
+      await controller.addAdmin(crowdsale.address);
+      await crowdsale.diluteMilestones();
+    });
+
+    it('should not allow to start crowdsale if end time smaller than startTime',  async () => {
+      let crowdsaleNew;
+      endTime = startTime - 2;
+      rates = [500, 400, 300, 200, 100];
+      try {
+        crowdsaleNew = await CrowdsaleTokenMilestones.new(startTime, endTime, ends, rates, token.address, multisigWallet.address);
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+      }
+
+      assert.equal(crowdsaleNew, undefined, 'crowdsale still initialized');
+    });
+  });
+
   describe('#purchaseTokenMilestones', () => {
     let endTime;
 
