@@ -1,7 +1,6 @@
 pragma solidity ^0.4.11;
 
-import '../CrowdsaleBase.sol';
-import './RateLogic/TimeMilestones.sol';
+import './MultiStageCrowdsaleBase.sol';
 
 /**
  * @title Crowdsale
@@ -10,26 +9,28 @@ import './RateLogic/TimeMilestones.sol';
  * along with the corresponding swapRates. The last term in ends[] must be the endTime
  * of the crowdsale
  */
-contract Crowdsale is CrowdsaleBase, TimeMilestones {
+contract Crowdsale is MultiStageCrowdsaleBase {
 
   function Crowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address _controller) public
-    CrowdsaleBase(_startTime, _wallet, _controller)
+    MultiStageCrowdsaleBase(_startTime, _ends, _swapRate, _wallet, _controller)
   {
-    require(_ends.length == _swapRate.length);
     require(_ends[0] > _startTime);
-
     endTime = _ends[_ends.length - 1];
-
-    for(uint8 i = 0; i < _ends.length; i++) {
-      require(_swapRate[i] > 0);
-      if (i != 0) require(_ends[i] > _ends[i-1]);
-      rate[i].end = _ends[i];
-      rate[i].swapRate = _swapRate[i];
-    }
   }
 
   // low level tokenAddr purchase function
   function buyTokens(address beneficiary) public payable {
     _buyTokens(beneficiary, currentRate());
   }
+
+  function currentRate() public constant returns (uint256) {
+    if(now < startTime) return  0;
+
+    for(uint8 i = 0; i < rate.length; i++) {
+      if(now < rate[i].end) {
+        return rate[i].swapRate;
+      }
+    }
+  }
+
 }
