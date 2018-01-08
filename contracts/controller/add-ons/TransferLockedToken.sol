@@ -10,15 +10,15 @@ import '../CrowdsaleControl.sol';
 contract TransferLockedToken is CrowdsaleControl {
 
   // public functions
-  function approve(address _owner, address _spender, uint256 _value) public canMint(false){
+  function approve(address _owner, address _spender, uint256 _value) public canMint(false, _owner){
     return super.approve(_owner, _spender, _value);
   }
 
-  function transfer(address _owner, address to, uint value, bytes data) public canMint(false) {
+  function transfer(address _owner, address to, uint value, bytes data) public canMint(false, _owner) {
     return super.transfer(_owner, to, value, data);
   }
 
-  function transferFrom(address _owner, address _from, address _to, uint256 _amount, bytes _data) public canMint(false) {
+  function transferFrom(address _owner, address _from, address _to, uint256 _amount, bytes _data) public canMint(false, _owner) {
     return super.transferFrom(_owner, _from, _to, _amount, _data);
   }
 

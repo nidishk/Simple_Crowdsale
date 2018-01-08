@@ -11,31 +11,31 @@ contract Governable {
   }
 
   modifier onlyAdmins() {
-    bool isAdmin = false;
-    for (uint256 i = 0; i < admins.length; i++) {
-      if (msg.sender == admins[i]) {
-        isAdmin = true;
-      }
-    }
-    require(isAdmin == true);
+    var(adminStatus, ) = isAdmin(msg.sender);
+    require(adminStatus == true);
     _;
   }
 
-  function addAdmin(address _admin) public onlyAdmins {
+  function isAdmin(address _addr) internal returns (bool isAdmin, uint256 pos) {
+    isAdmin = false;
     for (uint256 i = 0; i < admins.length; i++) {
-      require(_admin != admins[i]);
+      if (_addr == admins[i]) {
+        isAdmin = true;
+        pos = i;
+      }
     }
+  }
+
+  function addAdmin(address _admin) public onlyAdmins {
+    var(adminStatus, ) = isAdmin(_admin);
+    require(!adminStatus);
     require(admins.length < 10);
     admins[admins.length++] = _admin;
   }
 
   function removeAdmin(address _admin) public onlyAdmins {
-    uint256 pos = admins.length;
-    for (uint256 i = 0; i < admins.length; i++) {
-      if (_admin == admins[i]) {
-        pos = i;
-      }
-    }
+    var(adminStatus, pos) = isAdmin(_admin);
+    require(adminStatus);
     require(pos < admins.length);
     // if not last element, switch with last
     if (pos < admins.length - 1) {

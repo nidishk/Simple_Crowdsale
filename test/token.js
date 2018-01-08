@@ -27,7 +27,7 @@ contract('Token', (accounts) => {
     await token.transferOwnership(controller.address);
     await dataCentre.transferOwnership(controller.address);
     await controller.unpause();
-    await controller.mint(accounts[0], 2835000e18);
+    await controller.mint(accounts[0], 2500000e18);
   });
 
   // only needed because of the refactor
@@ -88,14 +88,15 @@ contract('Token', (accounts) => {
       const BENEFICIARY = accounts[5];
       const swapRate = new BigNumber(256);
       const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+      await token.transfer(BENEFICIARY, tokensAmount, {from: INVESTOR});
 
       try {
-        await token.transfer(BENEFICIARY, tokensAmount, {from: INVESTOR});
+        await token.transfer(INVESTOR, tokensAmount, {from: BENEFICIARY});
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
         const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens transferred');
+        assert.equal(tokenBalanceTransfered.toNumber(), tokensAmount, 'tokens transferred');
       }
     });
 
@@ -222,8 +223,9 @@ contract('Token', (accounts) => {
       const swapRate = new BigNumber(256);
       const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
 
+      await token.transfer(BENEFICIARY, tokensAmount, {from: INVESTOR});
       try {
-        await token.approve(BENEFICIARY, tokensAmount, {from: INVESTOR});
+        await token.approve(INVESTOR, tokensAmount, {from: BENEFICIARY});
         assert.fail('should have failed before');
       } catch(error) {
         assertJump(error);
@@ -278,6 +280,7 @@ contract('Token', (accounts) => {
 
       await controller.pause();
 
+      await token.approve(BENEFICIARY, tokensAmount, {from: INVESTOR});
       try {
         await token.transferFrom(INVESTOR, BENEFICIARY, tokensAmount, {from: BENEFICIARY});
         assert.fail('should have failed before');

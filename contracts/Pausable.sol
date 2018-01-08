@@ -18,23 +18,25 @@ contract Pausable is Governable {
   /**
    * @dev Modifier to make a function callable only when the contract is not paused.
    */
-  modifier whenNotPaused() {
-    require(!paused);
+  modifier whenNotPaused(address _to) {
+    var(adminStatus, ) = isAdmin(_to);
+    require(!paused || adminStatus);
     _;
   }
 
   /**
    * @dev Modifier to make a function callable only when the contract is paused.
    */
-  modifier whenPaused() {
-    require(paused);
+  modifier whenPaused(address _to) {
+    var(adminStatus, ) = isAdmin(_to);
+    require(paused || adminStatus);
     _;
   }
 
   /**
    * @dev called by the owner to pause, triggers stopped state
    */
-  function pause() onlyAdmins whenNotPaused public {
+  function pause() onlyAdmins whenNotPaused(msg.sender) public {
     paused = true;
     Pause();
   }
@@ -42,7 +44,7 @@ contract Pausable is Governable {
   /**
    * @dev called by the owner to unpause, returns to normal state
    */
-  function unpause() onlyAdmins whenPaused public {
+  function unpause() onlyAdmins whenPaused(msg.sender) public {
     paused = false;
     Unpause();
   }

@@ -23,7 +23,7 @@ contract SimpleControl is DataManager {
   }
 
   // public functions
-  function approve(address _owner, address _spender, uint256 _value) public onlyToken whenNotPaused {
+  function approve(address _owner, address _spender, uint256 _value) public onlyToken whenNotPaused(_owner) {
     require(_owner != _spender);
     _setAllowance(_owner, _spender, _value);
   }
@@ -38,11 +38,11 @@ contract SimpleControl is DataManager {
     _setBalanceOf(_to, balanceOf(_to).add(_amount));
   }
 
-  function transfer(address _from, address _to, uint256 _amount, bytes _data) public onlyToken whenNotPaused {
+  function transfer(address _from, address _to, uint256 _amount, bytes _data) public onlyToken whenNotPaused(_from) {
     _transfer(_from, _to, _amount, _data);
   }
 
-  function transferFrom(address _sender, address _from, address _to, uint256 _amount, bytes _data) public onlyToken whenNotPaused {
+  function transferFrom(address _sender, address _from, address _to, uint256 _amount, bytes _data) public onlyToken whenNotPaused(_sender) {
     _setAllowance(_from, _to, allowance(_from, _to).sub(_amount));
     _transfer(_from, _to, _amount, _data);
   }
