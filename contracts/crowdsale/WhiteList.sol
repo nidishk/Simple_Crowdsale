@@ -22,7 +22,7 @@ contract WhiteList is Ownable {
 
   function removeWhiteListed(address whiteListAddress) public onlyOwner {
     require(whiteListMap[whiteListAddress] == true);
-    whiteListMap[whiteListAddress] = false;
+    delete whiteListMap[whiteListAddress];
   }
 
 }
