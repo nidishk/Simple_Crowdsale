@@ -36,7 +36,6 @@ contract Governable {
   function removeAdmin(address _admin) public onlyAdmins {
     var(adminStatus, pos) = isAdmin(_admin);
     require(adminStatus);
-    require(pos < admins.length);
     // if not last element, switch with last
     if (pos < admins.length - 1) {
       admins[pos] = admins[admins.length - 1];
