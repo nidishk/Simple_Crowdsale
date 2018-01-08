@@ -57,7 +57,7 @@ contract('Token', (accounts) => {
       } catch(error) {
         assertJump(error);
         const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens not transferred');
+        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens transferred');
       }
     });
 
@@ -75,7 +75,7 @@ contract('Token', (accounts) => {
       } catch(error) {
         assertJump(error);
         const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens not transferred');
+        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens transferred');
       }
     });
 
@@ -93,7 +93,7 @@ contract('Token', (accounts) => {
       } catch(error) {
         assertJump(error);
         const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-        assert.equal(tokenBalanceTransfered.toNumber(), tokensAmount.toNumber(), 'tokens transferred');
+        assert.equal(tokenBalanceTransfered.toNumber(), tokensAmount.toNumber(), 'tokens not transferred');
       }
     });
 
@@ -113,7 +113,7 @@ contract('Token', (accounts) => {
       } catch(error) {
         assertJump(error);
         const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-        assert.equal(tokenBalanceTransfered.toNumber(), tokensAmount, 'tokens transferred');
+        assert.equal(tokenBalanceTransfered.toNumber(), tokensAmount, 'tokens not transferred');
       }
     });
 
@@ -207,7 +207,7 @@ contract('Token', (accounts) => {
       } catch(error) {
         assertJump(error);
         const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
-        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens still transferred');
+        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens transferred');
       }
     });
 
@@ -391,7 +391,7 @@ contract('Token', (accounts) => {
 
       const tokensBalance1 = await token.balanceOf.call(INVESTOR);
       const tokensAmount1 = swapRate.mul(MOCK_ONE_ETH);
-      assert.equal(tokensBalance1.toNumber(), tokensAmount1.toNumber(), 'tokens not deposited into the INVESTOR balance');
+      assert.equal(tokensBalance1.toNumber(), tokensAmount1.toNumber(), 'tokens not retained in the INVESTOR balance');
     });
   });
 })

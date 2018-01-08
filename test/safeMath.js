@@ -47,7 +47,7 @@ contract('SafeMath', function(accounts) {
   });
 
   it("should throw an error on addition overflow", async function() {
-    let a = 115792089237316195423570985008687907853269984665640564039457584007913129639935;
+    let a = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
     let b = 1;
     try {
       let add = await safeMath.add(a, b);
@@ -58,7 +58,7 @@ contract('SafeMath', function(accounts) {
   });
 
   it("should throw an error on multiplication overflow", async function() {
-    let a = 115792089237316195423570985008687907853269984665640564039457584007913129639933;
+    let a = '115792089237316195423570985008687907853269984665640564039457584007913129639933';
     let b = 2;
     try {
       let multiply = await safeMath.multiply(a, b);

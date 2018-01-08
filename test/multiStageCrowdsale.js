@@ -62,17 +62,17 @@ contract('MultiStageCrowdsale', (accounts) => {
     rate[1].splice(rates.length);
     rate[0].splice(rates.length);
 
-    assert.equal(rate[0][0].toNumber(), ends[0], 'endTime not set right');
-    assert.equal(rate[0][1].toNumber(), ends[1], 'endTime not set right');
-    assert.equal(rate[0][2].toNumber(), ends[2], 'endTime not set right');
-    assert.equal(rate[0][3].toNumber(), ends[3], 'endTime not set right');
-    assert.equal(rate[0][4].toNumber(), ends[4], 'endTime not set right');
+    assert.equal(rate[0][0].toNumber(), ends[0], 'endTime1 not set right');
+    assert.equal(rate[0][1].toNumber(), ends[1], 'endTime2 not set right');
+    assert.equal(rate[0][2].toNumber(), ends[2], 'endTime3 not set right');
+    assert.equal(rate[0][3].toNumber(), ends[3], 'endTime4 not set right');
+    assert.equal(rate[0][4].toNumber(), ends[4], 'endTime5 not set right');
 
-    assert.equal(rate[1][0].toNumber(), rates[0], 'swapRate not set right');
-    assert.equal(rate[1][1].toNumber(), rates[1], 'swapRate not set right');
-    assert.equal(rate[1][2].toNumber(), rates[2], 'swapRate not set right');
-    assert.equal(rate[1][3].toNumber(), rates[3], 'swapRate not set right');
-    assert.equal(rate[1][4].toNumber(), rates[4], 'swapRate not set right');
+    assert.equal(rate[1][0].toNumber(), rates[0], 'swapRate1 not set right');
+    assert.equal(rate[1][1].toNumber(), rates[1], 'swapRate2 not set right');
+    assert.equal(rate[1][2].toNumber(), rates[2], 'swapRate3 not set right');
+    assert.equal(rate[1][3].toNumber(), rates[3], 'swapRate4 not set right');
+    assert.equal(rate[1][4].toNumber(), rates[4], 'swapRate5 not set right');
     });
   });
 
@@ -251,8 +251,8 @@ contract('MultiStageCrowdsale', (accounts) => {
         assertJump(error);
         const walletBalance = await web3.eth.getBalance(multisigWallet.address);
         const tokensBalance = await token.balanceOf.call(INVESTOR);
-        assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
-        assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
+        assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
+        assert.equal(tokensBalance.toNumber(), 0, 'tokens still deposited into the INVESTOR balance');
       }
     });
 
@@ -271,8 +271,8 @@ contract('MultiStageCrowdsale', (accounts) => {
         assertJump(error);
         const walletBalance = await web3.eth.getBalance(multisigWallet.address);
         const tokensBalance = await token.balanceOf.call(INVESTOR);
-        assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
-        assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
+        assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
+        assert.equal(tokensBalance.toNumber(), 0, 'tokens still deposited into the INVESTOR balance');
       }
     });
   });

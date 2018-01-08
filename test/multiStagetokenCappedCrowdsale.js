@@ -63,7 +63,7 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
 
     assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
     assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
-    assert.equal(totalSupplyPhase1.toNumber(), 0, 'balance not added to totalSupply');
+    assert.equal(totalSupplyPhase1.toNumber(), 0, 'balance still added to totalSupply');
   });
 
   it('should allow not investors to buy tokens after endTime', async () => {
@@ -78,8 +78,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       assertJump(error);
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const tokensBalance = await token.balanceOf.call(INVESTOR);
-      assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
-      assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
+      assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), 0, 'tokens still deposited into the INVESTOR balance');
     }
   });
 
@@ -104,17 +104,17 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
     softCap[1].splice(caps.length);
     softCap[0].splice(caps.length);
 
-    assert.equal(softCap[0][0].toNumber(), capTimes[0], 'endTime not set right');
-    assert.equal(softCap[0][1].toNumber(), capTimes[1], 'endTime not set right');
-    assert.equal(softCap[0][2].toNumber(), capTimes[2], 'endTime not set right');
-    assert.equal(softCap[0][3].toNumber(), capTimes[3], 'endTime not set right');
-    assert.equal(softCap[0][4].toNumber(), capTimes[4], 'endTime not set right');
+    assert.equal(softCap[0][0].toNumber(), capTimes[0], 'endTime1 not set right');
+    assert.equal(softCap[0][1].toNumber(), capTimes[1], 'endTime2 not set right');
+    assert.equal(softCap[0][2].toNumber(), capTimes[2], 'endTime3 not set right');
+    assert.equal(softCap[0][3].toNumber(), capTimes[3], 'endTime4 not set right');
+    assert.equal(softCap[0][4].toNumber(), capTimes[4], 'endTime5 not set right');
 
-    assert.equal(softCap[1][0].toNumber(), caps[0], 'swapRate not set right');
-    assert.equal(softCap[1][1].toNumber(), caps[1], 'swapRate not set right');
-    assert.equal(softCap[1][2].toNumber(), caps[2], 'swapRate not set right');
-    assert.equal(softCap[1][3].toNumber(), caps[3], 'swapRate not set right');
-    assert.equal(softCap[1][4].toNumber(), caps[4], 'swapRate not set right');
+    assert.equal(softCap[1][0].toNumber(), caps[0], 'softCap1 not set right');
+    assert.equal(softCap[1][1].toNumber(), caps[1], 'softCap2 not set right');
+    assert.equal(softCap[1][2].toNumber(), caps[2], 'softCap3 not set right');
+    assert.equal(softCap[1][3].toNumber(), caps[3], 'softCap4 not set right');
+    assert.equal(softCap[1][4].toNumber(), caps[4], 'softCap5 not set right');
     });
   });
 
@@ -208,8 +208,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(0);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
 
@@ -227,8 +227,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(1);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
 
@@ -246,8 +246,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(2);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
 
@@ -265,8 +265,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(3);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
 
@@ -284,8 +284,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(4);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
   });
@@ -308,8 +308,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(0);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
 
@@ -327,8 +327,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(1);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
 
@@ -346,8 +346,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(2);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
 
@@ -365,8 +365,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(3);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
 
@@ -384,8 +384,8 @@ contract('MultiStageTokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.milestoneTotalSupply.call(4);
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
   });

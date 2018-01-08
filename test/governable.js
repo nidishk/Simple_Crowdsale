@@ -25,6 +25,10 @@ contract('Governable', function (accounts) {
     await this.governable.addAdmin(accounts[0], {from: accounts[0]}).should.be.rejectedWith(EVMThrow)
   })
 
+  it('should not allow to remove non admi', async function () {
+    await this.governable.removeAdmin(accounts[1], {from: accounts[0]}).should.be.rejectedWith(EVMThrow)
+  })
+
   it('should not allow to add more than 10 admins', async function () {
     await this.governable.addAdmin(accounts[1], {from: accounts[0]}).should.be.fulfilled
     await this.governable.addAdmin(accounts[2], {from: accounts[0]}).should.be.fulfilled

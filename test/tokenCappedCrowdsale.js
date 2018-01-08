@@ -55,8 +55,8 @@ contract('TokenCappedCrowdsale', (accounts) => {
       assertJump(error);
       const walletBalance = await web3.eth.getBalance(multisigWallet.address);
       const tokensBalance = await token.balanceOf.call(INVESTOR);
-      assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
-      assert.equal(tokensBalance.toNumber(), 0, 'tokens not deposited into the INVESTOR balance');
+      assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
+      assert.equal(tokensBalance.toNumber(), 0, 'tokens still deposited into the INVESTOR balance');
     }
   });
 
@@ -117,8 +117,8 @@ contract('TokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.totalSupply.call();
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
   });
@@ -141,8 +141,8 @@ contract('TokenCappedCrowdsale', (accounts) => {
       const totalSupplyPhase1 = await tokenCappedCrowdsale.totalSupply.call();
       const totalSupplyToken = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyPhase1.toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
   });

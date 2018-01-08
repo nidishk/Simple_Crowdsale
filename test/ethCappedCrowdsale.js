@@ -98,8 +98,8 @@ contract('EthCappedCrowdsale', (accounts) => {
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
       const totalSupplyTokenAfter = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyTokenAfter.sub(totalSupplyTokenBefore).toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
   });
@@ -122,8 +122,8 @@ contract('EthCappedCrowdsale', (accounts) => {
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
       const totalSupplyTokenAfter = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), amountEth.toNumber(), 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), tokensAmount.toNumber(), 'balance not added for investor');
       assert.equal(totalSupplyTokenAfter.sub(totalSupplyTokenBefore).toNumber(), tokensAmount.toNumber(), 'balance not added to totalSupply');
     });
   });
@@ -151,8 +151,8 @@ contract('EthCappedCrowdsale', (accounts) => {
       const balanceInvestor = await token.balanceOf.call(INVESTORS);
       const totalSupplyTokenAfter = await token.totalSupply.call();
 
-      assert.equal(walletBalance.toNumber(), 0, 'ether still deposited into the wallet');
-      assert.equal(balanceInvestor.toNumber(), 0, 'balance still added for investor');
+      assert.equal(walletBalance.toNumber(), 0, 'ether not deposited into the wallet');
+      assert.equal(balanceInvestor.toNumber(), 0, 'balance not added for investor');
       assert.equal(totalSupplyTokenAfter.sub(totalSupplyTokenBefore).toNumber(), 0, 'balance not added to totalSupply');
     });
   });
