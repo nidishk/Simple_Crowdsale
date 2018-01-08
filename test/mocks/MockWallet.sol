@@ -14,12 +14,12 @@ pragma solidity ^0.4.11;
  */
 contract MockWallet {
 
-  bool public state;
+    bool public state;
 
-  function () payable {
-    for(uint i = 0; i < 30; i ++) {
-      state = state == true ? false : true;
+    function () public payable {
+        for (uint i = 0; i < 30; i++) {
+            state = state == true ? false : true;
+        }
     }
-  }
 
 }

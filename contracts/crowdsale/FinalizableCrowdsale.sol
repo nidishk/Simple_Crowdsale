@@ -1,7 +1,8 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.16;
 
-import '../ownership/Ownable.sol';
-import './singlestage/Crowdsale.sol';
+import "../ownership/Ownable.sol";
+import "./singlestage/Crowdsale.sol";
+
 
 /**
  * @title FinalizableCrowdsale
@@ -10,29 +11,29 @@ import './singlestage/Crowdsale.sol';
  */
 contract FinalizableCrowdsale is Crowdsale, Ownable {
 
-  bool public isFinalized = false;
+    bool public isFinalized = false;
 
-  event Finalized();
+    event Finalized();
 
-  /**
-   * @dev Must be called after crowdsale ends, to do some extra finalization
-   * work. Calls the contract's finalization function.
-   */
-  function finalize() onlyOwner public {
-    require(!isFinalized);
-    require(hasEnded());
+    /**
+    * @dev Must be called after crowdsale ends, to do some extra finalization
+    * work. Calls the contract's finalization function.
+    */
+    function finalize() public onlyOwner {
+        require(!isFinalized);
+        require(hasEnded());
 
-    finalization();
-    Finalized();
+        finalization();
+        Finalized();
 
-    isFinalized = true;
-  }
+        isFinalized = true;
+    }
 
-  /**
-   * @dev Can be overridden to add finalization logic. The overriding function
-   * should call super.finalization() to ensure the chain of finalization is
-   * executed entirely.
-   */
-  function finalization() internal {
-  }
+    /**
+    * @dev Can be overridden to add finalization logic. The overriding function
+    * should call super.finalization() to ensure the chain of finalization is
+    * executed entirely.
+    */
+    function finalization() internal {
+    }
 }

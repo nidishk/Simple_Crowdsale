@@ -1,7 +1,7 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.16;
 
-import '../crowdsale/singlestage/TokenCappedCrowdsale.sol';
-import '../crowdsale/RefundableCrowdsale.sol';
+import "../crowdsale/singlestage/TokenCappedCrowdsale.sol";
+import "../crowdsale/RefundableCrowdsale.sol";
 
 
 /**
@@ -18,13 +18,12 @@ import '../crowdsale/RefundableCrowdsale.sol';
  */
 contract SimpleCrowdsale is TokenCappedCrowdsale, RefundableCrowdsale {
 
-
-  function SimpleCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address controller, uint256 _cap, uint256 _goal)
-    Crowdsale(_startTime, _endTime, _rate, _wallet, controller)
-    TokenCappedCrowdsale(_cap)
-    RefundableCrowdsale(_goal)
-  {
-    // require(_cap.div(rate) > _goal);
-  }
+    function SimpleCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address controller, uint256 _cap, uint256 _goal) public
+        Crowdsale(_startTime, _endTime, _rate, _wallet, controller)
+        TokenCappedCrowdsale(_cap)
+        RefundableCrowdsale(_goal)
+    {
+        // require(_cap.div(rate) > _goal);
+    }
 
 }

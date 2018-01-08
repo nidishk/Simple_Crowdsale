@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import '../SafeMath.sol';
-import '../controller/ControllerInterface.sol';
+import "../SafeMath.sol";
+import "../controller/ControllerInterface.sol";
 
 /**
  * @title Crowdsale
@@ -10,66 +10,67 @@ import '../controller/ControllerInterface.sol';
  */
 
 contract CrowdsaleBase {
-  using SafeMath for uint256;
 
-  address public controller;
-  uint256 public startTime;
-  address public wallet;
-  uint256 public weiRaised;
-  uint256 public endTime;
+    using SafeMath for uint256;
 
-  event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
+    address public controller;
+    uint256 public startTime;
+    address public wallet;
+    uint256 public weiRaised;
+    uint256 public endTime;
 
-  function CrowdsaleBase(uint256 _startTime, address _wallet, address _controller) public {
-    require(_wallet != address(0));
+    event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-    controller = _controller;
-    startTime = _startTime;
-    wallet = _wallet;
-  }
+    function CrowdsaleBase(uint256 _startTime, address _wallet, address _controller) public {
+        require(_wallet != address(0));
 
-  function buyTokens(address beneficiary) public payable;
+        controller = _controller;
+        startTime = _startTime;
+        wallet = _wallet;
+    }
 
-  // @return true if crowdsale event has ended
-  function hasEnded() public constant returns (bool) {
-    return now > endTime;
-  }
+    // fallback function can be used to buy tokens
+    function () external payable {
+        buyTokens(msg.sender);
+    }
 
-  // fallback function can be used to buy tokens
-  function () external payable {
-    buyTokens(msg.sender);
-  }
+    function buyTokens(address beneficiary) public payable;
 
-  // send ether to the fund collection wallet
-  // override to create custom fund forwarding mechanisms
-  function forwardFunds() internal {
-    require(wallet.call.gas(2000).value(msg.value)());
-  }
+    // @return true if crowdsale event has ended
+    function hasEnded() public constant returns (bool) {
+        return now > endTime;
+    }
 
-  // @return true if the transaction can buy tokens
-  function validPurchase() internal constant returns (bool) {
-    bool withinPeriod = now >= startTime && now <= endTime;
-    bool nonZeroPurchase = msg.value != 0;
-    return withinPeriod && nonZeroPurchase;
-  }
+    // send ether to the fund collection wallet
+    // override to create custom fund forwarding mechanisms
+    function forwardFunds() internal {
+        require(wallet.call.gas(2000).value(msg.value)());
+    }
 
-  // low level token purchase function
-  function _buyTokens(address beneficiary, uint256 rate) internal returns (uint256 tokens) {
-    require(beneficiary != address(0));
-    require(validPurchase());
+    // @return true if the transaction can buy tokens
+    function validPurchase() internal constant returns (bool) {
+        bool withinPeriod = now >= startTime && now <= endTime;
+        bool nonZeroPurchase = msg.value != 0;
+        return withinPeriod && nonZeroPurchase;
+    }
 
-    uint256 weiAmount = msg.value;
+    // low level token purchase function
+    function _buyTokens(address beneficiary, uint256 rate) internal returns (uint256 tokens) {
+        require(beneficiary != address(0));
+        require(validPurchase());
 
-    // calculate token amount to be created
-    tokens = weiAmount.mul(rate);
+        uint256 weiAmount = msg.value;
 
-    // update state
-    weiRaised = weiRaised.add(weiAmount);
+        // calculate token amount to be created
+        tokens = weiAmount.mul(rate);
 
-    ControllerInterface(controller).mint(beneficiary, tokens);
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+        // update state
+        weiRaised = weiRaised.add(weiAmount);
 
-    forwardFunds();
-  }
+        ControllerInterface(controller).mint(beneficiary, tokens);
+        TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+
+        forwardFunds();
+    }
 
 }

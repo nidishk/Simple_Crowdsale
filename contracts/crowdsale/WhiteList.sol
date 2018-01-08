@@ -1,6 +1,7 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.16;
 
 import "../ownership/Ownable.sol";
+
 
 /**
  * @title WhiteList
@@ -9,20 +10,20 @@ import "../ownership/Ownable.sol";
  * set in the WhiteListedCrowdsale contract
  */
 contract WhiteList is Ownable {
-  mapping (address => bool) internal whiteListMap;
+    mapping (address => bool) internal whiteListMap;
 
-  function isWhiteListed(address investor) constant returns (bool) {
-    return whiteListMap[investor];
-  }
+    function isWhiteListed(address investor) constant returns (bool) {
+        return whiteListMap[investor];
+    }
 
-  function addWhiteListed(address whiteListAddress) public onlyOwner {
-    require(whiteListMap[whiteListAddress] == false);
-    whiteListMap[whiteListAddress] = true;
-  }
+    function addWhiteListed(address whiteListAddress) public onlyOwner {
+        require(whiteListMap[whiteListAddress] == false);
+        whiteListMap[whiteListAddress] = true;
+    }
 
-  function removeWhiteListed(address whiteListAddress) public onlyOwner {
-    require(whiteListMap[whiteListAddress] == true);
-    delete whiteListMap[whiteListAddress];
-  }
+    function removeWhiteListed(address whiteListAddress) public onlyOwner {
+        require(whiteListMap[whiteListAddress] == true);
+        delete whiteListMap[whiteListAddress];
+    }
 
 }

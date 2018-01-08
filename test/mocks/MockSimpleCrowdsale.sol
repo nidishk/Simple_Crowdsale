@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.16;
 
 import "../../contracts/example/SimpleCrowdsale.sol";
 
@@ -17,16 +17,16 @@ import "../../contracts/example/SimpleCrowdsale.sol";
 contract MockSimpleCrowdsale is SimpleCrowdsale {
 
 
-  function MockSimpleCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address controller, uint256 _cap, uint256 _goal)
-    SimpleCrowdsale(_startTime, _endTime, _rate, _wallet, controller, _cap, _goal)
-  {
+    function MockSimpleCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address controller, uint256 _cap, uint256 _goal) public
+        SimpleCrowdsale(_startTime, _endTime, _rate, _wallet, controller, _cap, _goal)
+    {
 
-  }
+    }
 
-  function diluteCaps() public {
-    // diluting all caps by 10^6 for testing
-    tokenCap = tokenCap.div(1e6);
-    goal = goal.div(1e6);
+    function diluteCaps() public {
+        // diluting all caps by 10^6 for testing
+        tokenCap = tokenCap.div(1e6);
+        goal = goal.div(1e6);
 
-  }
+    }
 }

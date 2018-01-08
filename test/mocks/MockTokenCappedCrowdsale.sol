@@ -16,17 +16,16 @@ import "../../contracts/crowdsale/singlestage/TokenCappedCrowdsale.sol";
  */
 contract MockTokenCappedCrowdsale is TokenCappedCrowdsale {
 
+    function MockTokenCappedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address controller, uint256 _tokenCap) public
+        Crowdsale(_startTime, _endTime, _rate, _wallet, controller)
+        TokenCappedCrowdsale(_tokenCap)
+    {
 
-  function MockTokenCappedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, address controller, uint256 _tokenCap)
-    Crowdsale(_startTime, _endTime, _rate, _wallet, controller)
-    TokenCappedCrowdsale(_tokenCap)
-  {
+    }
 
-  }
-
-  function diluteCap() public {
-    // diluting all caps by 10^6 for testing
-    tokenCap = tokenCap.div(1e6);
-  }
+    function diluteCap() public {
+        // diluting all caps by 10^6 for testing
+        tokenCap = tokenCap.div(1e6);
+    }
 
 }

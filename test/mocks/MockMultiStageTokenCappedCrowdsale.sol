@@ -17,29 +17,29 @@ import "../../contracts/crowdsale/multistage/TokenCappedCrowdsale.sol";
 contract MockMultiStageTokenCappedCrowdsale is TokenCappedCrowdsale {
 
 
-  function MockMultiStageTokenCappedCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet,  address controller, uint256[] _capTimes, uint256[] _cap)
-    Crowdsale(_startTime, _ends, _swapRate, _wallet, controller)
-    TokenCappedCrowdsale(_capTimes, _cap)
-  {
+    function MockMultiStageTokenCappedCrowdsale(uint256 _startTime, uint256[] _ends, uint256[] _swapRate, address _wallet,  address controller, uint256[] _capTimes, uint256[] _cap) public
+        Crowdsale(_startTime, _ends, _swapRate, _wallet, controller)
+        TokenCappedCrowdsale(_capTimes, _cap)
+    {
 
-  }
-
-  function diluteCaps() public {
-    // diluting all caps by 10^6 for testing
-    for(uint8 i = 0; i < softCap.length; i++) {
-      softCap[i].cap = softCap[i].cap.div(1e6);
-    }
-  }
-
-  function listCaps() public constant returns (uint256[] ends, uint256[] caps) {
-    ends = new uint256[](softCap.length);
-    caps = new uint256[](softCap.length);
-    for (uint256 i = 0; i < rate.length; i++) {
-        ends[i] = softCap[i].end;
-        caps[i] = softCap[i].cap;
     }
 
-    return (ends, caps);
-  }
+    function diluteCaps() public {
+        // diluting all caps by 10^6 for testing
+        for (uint8 i = 0; i < softCap.length; i++) {
+            softCap[i].cap = softCap[i].cap.div(1e6);
+        }
+    }
+
+    function listCaps() public constant returns (uint256[] ends, uint256[] caps) {
+        ends = new uint256[](softCap.length);
+        caps = new uint256[](softCap.length);
+        for (uint256 i = 0; i < rate.length; i++) {
+            ends[i] = softCap[i].end;
+            caps[i] = softCap[i].cap;
+        }
+
+        return (ends, caps);
+    }
 
 }

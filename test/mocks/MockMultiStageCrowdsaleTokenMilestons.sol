@@ -17,28 +17,28 @@ import "../../contracts/crowdsale/multistage/CrowdsaleTokenMilestones.sol";
 contract MockMultiStageCrowdsaleTokenMilestons is CrowdsaleTokenMilestones {
 
 
-  function MockMultiStageCrowdsaleTokenMilestons(uint256 _startTime, uint256 _endTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address controller)
-    CrowdsaleTokenMilestones(_startTime, _endTime, _ends, _swapRate, _wallet, controller)
-  {
+    function MockMultiStageCrowdsaleTokenMilestons(uint256 _startTime, uint256 _endTime, uint256[] _ends, uint256[] _swapRate, address _wallet, address controller) public
+        CrowdsaleTokenMilestones(_startTime, _endTime, _ends, _swapRate, _wallet, controller)
+    {
 
-  }
-
-  function diluteMilestones() public {
-    // diluting all caps by 10^6 for testing
-    for(uint8 i = 0; i < rate.length; i++) {
-      rate[i].end = rate[i].end.div(1e6);
-    }
-  }
-
-  function listRates() public constant returns (uint256[] endTimes, uint256[] swapRates) {
-    endTimes = new uint256[](rate.length);
-    swapRates = new uint256[](rate.length);
-    for (uint256 i = 0; i < rate.length; i++) {
-        endTimes[i] = rate[i].end;
-        swapRates[i] = rate[i].swapRate;
     }
 
-    return (endTimes, swapRates);
-  }
+    function diluteMilestones() public {
+        // diluting all caps by 10^6 for testing
+        for (uint8 i = 0; i < rate.length; i++) {
+            rate[i].end = rate[i].end.div(1e6);
+        }
+    }
+
+    function listRates() public constant returns (uint256[] endTimes, uint256[] swapRates) {
+        endTimes = new uint256[](rate.length);
+        swapRates = new uint256[](rate.length);
+        for (uint256 i = 0; i < rate.length; i++) {
+            endTimes[i] = rate[i].end;
+            swapRates[i] = rate[i].swapRate;
+        }
+
+        return (endTimes, swapRates);
+    }
 
 }

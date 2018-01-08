@@ -1,7 +1,8 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.16;
 
-import './WhiteList.sol';
-import './singlestage/Crowdsale.sol';
+import "./WhiteList.sol";
+import "./singlestage/Crowdsale.sol";
+
 
 /**
  * @title WhiteListedCrowdsale
@@ -10,19 +11,19 @@ import './singlestage/Crowdsale.sol';
  */
 contract WhiteListedCrowdsale is Crowdsale {
 
-  address public whitelistAddr;
+    address public whitelistAddr;
 
-  modifier onlyWhiteListed(address _beneficiary) {
-    require(WhiteList(whitelistAddr).isWhiteListed(msg.sender) && _beneficiary == msg.sender);
-    _;
-  }
+    modifier onlyWhiteListed(address _beneficiary) {
+        require(WhiteList(whitelistAddr).isWhiteListed(msg.sender) && _beneficiary == msg.sender);
+        _;
+    }
 
-  function WhiteListedCrowdsale(address _whiteListAddr) public {
-    whitelistAddr = _whiteListAddr;
-  }
+    function WhiteListedCrowdsale(address _whiteListAddr) public {
+        whitelistAddr = _whiteListAddr;
+    }
 
-  // low level token purchase function
-  function buyTokens(address beneficiary) public onlyWhiteListed(beneficiary) payable {
-    super.buyTokens(beneficiary);
-  }
+    // low level token purchase function
+    function buyTokens(address beneficiary) public onlyWhiteListed(beneficiary) payable {
+        super.buyTokens(beneficiary);
+    }
 }
