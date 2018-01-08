@@ -44,6 +44,23 @@ contract('Token', (accounts) => {
       assert.equal(tokensAmount.toNumber(), tokenBalanceTransfered.toNumber(), 'tokens not transferred');
     });
 
+    it('should not allow investors to transfer to controller', async () => {
+
+      const INVESTOR = accounts[0];
+      const BENEFICIARY = controller.address;
+      const swapRate = new BigNumber(256);
+      const tokensAmount = swapRate.mul(MOCK_ONE_ETH);
+
+      try {
+        await token.transfer(BENEFICIARY, tokensAmount, {from: INVESTOR});
+        assert.fail('should have failed before');
+      } catch(error) {
+        assertJump(error);
+        const tokenBalanceTransfered = await token.balanceOf.call(BENEFICIARY);
+        assert.equal(tokenBalanceTransfered.toNumber(), 0, 'tokens not transferred');
+      }
+    });
+
     it('should not allow scammer and transfer un-owned tokens', async () => {
 
       const INVESTOR = accounts[0];
