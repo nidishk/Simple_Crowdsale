@@ -259,9 +259,9 @@ contract('MultiStageCrowdsale', (accounts) => {
     it('should allow not allow forward funds if wallet payable consumes a lot of gas', async () => {
       const INVESTOR = accounts[4];
       const walletNew = await MockWallet.new();
-      const tokenNew = await Token.new();
-      const crowdsaleNew = await Crowdsale.new(startTime, ends, rates, tokenNew.address, walletNew.address)
-      await tokenNew.transferOwnership(crowdsaleNew.address);
+      const crowdsaleNew = await Crowdsale.new(startTime, ends, rates, walletNew.address, controller.address)
+      await controller.removeAdmin(crowdsale.address);
+      await controller.addAdmin(crowdsaleNew.address);
 
       // buy tokens
       try {

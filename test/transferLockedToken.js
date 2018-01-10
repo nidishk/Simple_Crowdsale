@@ -45,7 +45,7 @@ contract('Token', (accounts) => {
       assert.equal(tokensAmount.toNumber(), tokenBalanceTransfered.toNumber(), 'tokens not transferred');
     });
 
-    it('should allow investors to transfer only after minting finished', async () => {
+    it('should not allow investors to transfer if minting not finished', async () => {
 
       const INVESTOR = accounts[0];
       const BENEFICIARY = accounts[5];
