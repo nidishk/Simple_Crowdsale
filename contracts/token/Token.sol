@@ -8,8 +8,6 @@ import "../controller/ControllerInterface.sol";
 
 contract Token is Ownable, ERC20 {
 
-    uint256 public constant INITIAL_SUPPLY = 28350000e18;
-
     event Mint(address indexed to, uint256 amount);
     event MintToggle(bool status);
 
